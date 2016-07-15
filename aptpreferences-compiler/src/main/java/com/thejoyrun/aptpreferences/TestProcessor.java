@@ -106,12 +106,14 @@ public class TestProcessor extends AbstractProcessor {
                         VariableElement parameter = executableElement.getParameters().get(0);
                         TypeName type = TypeName.get(parameter.asType());
                         String modName;
+                        boolean isDouble = false;
                         if (type.equals(TypeName.BOOLEAN)) {
                             modName = "putBoolean";
                         } else if (type.equals(TypeName.INT)) {
                             modName = "putInt";
                         } else if (type.equals(TypeName.DOUBLE)) {
-                            modName = "putDouble";
+                            modName = "putFloat";
+                            isDouble = true;
                         } else if (type.equals(TypeName.FLOAT)) {
                             modName = "putFloat";
                         } else if (type.equals(TypeName.LONG)) {
@@ -119,18 +121,27 @@ public class TestProcessor extends AbstractProcessor {
                         } else {
                             modName = "putString";
                         }
-
-                        MethodSpec setMethod = MethodSpec.overriding(executableElement)
-                                .addStatement(String.format("mEdit.%s(\"%s\", %s).apply()", modName, parameter, parameter)).build();
+                        MethodSpec setMethod;
+                        if (isDouble) {
+                            setMethod = MethodSpec.overriding(executableElement)
+                                    .addStatement(String.format("mEdit.%s(\"%s\", (float)%s).apply()", modName, parameter, parameter)).build();
+                        } else {
+                            setMethod = MethodSpec.overriding(executableElement)
+                                    .addStatement(String.format("mEdit.%s(\"%s\", %s).apply()", modName, parameter, parameter)).build();
+                        }
                         methodSpecs.add(setMethod);
                     } else if (name.startsWith("get") || name.startsWith("is")) {
                         System.out.println("获取：" + name);
                         TypeName type = TypeName.get(executableElement.getReturnType());
                         String modName;
+                        boolean isDouble = false;
                         if (type.equals(TypeName.BOOLEAN)) {
                             modName = "getBoolean";
                         } else if (type.equals(TypeName.INT)) {
                             modName = "getInt";
+                        } else if (type.equals(TypeName.DOUBLE)) {
+                            modName = "getFloat";
+                            isDouble = true;
                         } else if (type.equals(TypeName.FLOAT)) {
                             modName = "getFloat";
                         } else if (type.equals(TypeName.LONG)) {
@@ -142,10 +153,20 @@ public class TestProcessor extends AbstractProcessor {
                         simplename = simplename.substring(0, 1).toLowerCase() + simplename.substring(1);
 
 
-                        MethodSpec setMethod = MethodSpec.overriding(executableElement)
-                                .addStatement(String.format("return mPreferences.%s(\"%s\", super.%s())", modName, simplename, name))
-                                .build();
-                        methodSpecs.add(setMethod);
+                        if (isDouble){
+                            MethodSpec setMethod = MethodSpec.overriding(executableElement)
+                                    .addStatement(String.format("return mPreferences.%s(\"%s\", (float)super.%s())", modName, simplename, name))
+                                    .build();
+
+                            methodSpecs.add(setMethod);
+                        }else {
+                            MethodSpec setMethod = MethodSpec.overriding(executableElement)
+                                    .addStatement(String.format("return mPreferences.%s(\"%s\", super.%s())", modName, simplename, name))
+                                    .build();
+
+                            methodSpecs.add(setMethod);
+                        }
+
                     }
 
                 }
@@ -187,8 +208,7 @@ public class TestProcessor extends AbstractProcessor {
                     .build();
 
 
-
-            FieldSpec fieldSpec = FieldSpec.builder(ParameterizedTypeName.get(ClassName.get(Map.class),ClassName.get(String.class), targetClassName), "sMap", Modifier.PUBLIC, Modifier.FINAL, Modifier.STATIC)
+            FieldSpec fieldSpec = FieldSpec.builder(ParameterizedTypeName.get(ClassName.get(Map.class), ClassName.get(String.class), targetClassName), "sMap", Modifier.PUBLIC, Modifier.FINAL, Modifier.STATIC)
                     .initializer("new java.util.HashMap<>()")
                     .build();
             TypeSpec typeSpec = TypeSpec.classBuilder(element.getSimpleName() + "Preference")

@@ -11,6 +11,7 @@ public class Settings {
     private long time;
     private boolean login;
     private float price2;
+    private double price;
     @AptField(serialize = false)
     private float tmp;
 //    @AptPreferences
@@ -81,6 +82,13 @@ public class Settings {
         this.price2 = price2;
     }
 
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
 
     public static class Run {
         private boolean autoPause;
