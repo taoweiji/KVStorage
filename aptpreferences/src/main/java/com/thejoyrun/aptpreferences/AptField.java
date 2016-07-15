@@ -14,9 +14,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface AptField {
 
-    boolean serialize() default true;
+    boolean save() default true;
 
-    boolean deserialize() default true;
+//    boolean deserialize() default true;
 
     boolean commit() default false;
 

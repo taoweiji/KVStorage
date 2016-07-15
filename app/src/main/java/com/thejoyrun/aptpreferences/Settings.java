@@ -12,10 +12,14 @@ public class Settings {
     private boolean login;
     private float price2;
     private double price;
-    @AptField(serialize = false)
+    @AptField(save = false)
     private float tmp;
-//    @AptPreferences
+    private static float tmpStatic;
+
+    //    @AptPreferences
 //    private Run run;
+
+
 
     public float getTmp() {
         return tmp;
@@ -88,6 +92,14 @@ public class Settings {
 
     public void setPrice(double price) {
         this.price = price;
+    }
+
+    public static float getTmpStatic() {
+        return tmpStatic;
+    }
+
+    public static void setTmpStatic(float tmpStatic) {
+        Settings.tmpStatic = tmpStatic;
     }
 
     public static class Run {

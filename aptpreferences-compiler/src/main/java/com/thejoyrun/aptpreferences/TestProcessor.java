@@ -10,6 +10,7 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -101,6 +102,18 @@ public class TestProcessor extends AbstractProcessor {
                     if (name.equals("getClass")) {
                         continue;
                     }
+                    //忽略final、static 方法
+                    if (executableElement.getModifiers().contains(Modifier.FINAL) || executableElement.getModifiers().contains(Modifier.STATIC)) {
+                        continue;
+                    }
+                    String simplename = name.replaceFirst("get|is|set", "");
+                    simplename = simplename.substring(0, 1).toLowerCase() + simplename.substring(1);
+
+                    AptField annotation = getAnnotation(members, simplename, AptField.class);
+                    if (annotation != null && !annotation.save()) {
+                        continue;
+                    }
+
                     if (name.startsWith("set")) {
                         System.out.println("设置：" + name);
                         VariableElement parameter = executableElement.getParameters().get(0);
@@ -122,13 +135,26 @@ public class TestProcessor extends AbstractProcessor {
                             modName = "putString";
                         }
                         MethodSpec setMethod;
-                        if (isDouble) {
-                            setMethod = MethodSpec.overriding(executableElement)
-                                    .addStatement(String.format("mEdit.%s(\"%s\", (float)%s).apply()", modName, parameter, parameter)).build();
+
+                        if (annotation != null && annotation.commit()) {
+                            if (isDouble) {
+                                setMethod = MethodSpec.overriding(executableElement)
+                                        .addStatement(String.format("mEdit.%s(\"%s\", (float)%s).commit()", modName, parameter, parameter)).build();
+                            } else {
+                                setMethod = MethodSpec.overriding(executableElement)
+                                        .addStatement(String.format("mEdit.%s(\"%s\", %s).commit()", modName, parameter, parameter)).build();
+                            }
                         } else {
-                            setMethod = MethodSpec.overriding(executableElement)
-                                    .addStatement(String.format("mEdit.%s(\"%s\", %s).apply()", modName, parameter, parameter)).build();
+                            if (isDouble) {
+                                setMethod = MethodSpec.overriding(executableElement)
+                                        .addStatement(String.format("mEdit.%s(\"%s\", (float)%s).apply()", modName, parameter, parameter)).build();
+                            } else {
+                                setMethod = MethodSpec.overriding(executableElement)
+                                        .addStatement(String.format("mEdit.%s(\"%s\", %s).apply()", modName, parameter, parameter)).build();
+                            }
                         }
+
+
                         methodSpecs.add(setMethod);
                     } else if (name.startsWith("get") || name.startsWith("is")) {
                         System.out.println("获取：" + name);
@@ -149,17 +175,15 @@ public class TestProcessor extends AbstractProcessor {
                         } else {
                             modName = "getString";
                         }
-                        String simplename = name.replaceFirst("get|is", "");
-                        simplename = simplename.substring(0, 1).toLowerCase() + simplename.substring(1);
 
 
-                        if (isDouble){
+                        if (isDouble) {
                             MethodSpec setMethod = MethodSpec.overriding(executableElement)
                                     .addStatement(String.format("return mPreferences.%s(\"%s\", (float)super.%s())", modName, simplename, name))
                                     .build();
 
                             methodSpecs.add(setMethod);
-                        }else {
+                        } else {
                             MethodSpec setMethod = MethodSpec.overriding(executableElement)
                                     .addStatement(String.format("return mPreferences.%s(\"%s\", super.%s())", modName, simplename, name))
                                     .build();
@@ -192,8 +216,9 @@ public class TestProcessor extends AbstractProcessor {
             MethodSpec constructor = MethodSpec.constructorBuilder()
                     .addModifiers(Modifier.PUBLIC)
                     .addParameter(String.class, "name")
-                    .addStatement(String.format("mPreferences = AptPreferencesManager.getContext().getSharedPreferences(\"%s_\" + name, 0);\n" +
-                            "mEdit = mPreferences.edit()", element.getSimpleName()))
+                    .addStatement(String.format("mPreferences = AptPreferencesManager.getContext().getSharedPreferences(\"%s_\" + name, 0)", element.getSimpleName()))
+                    .addStatement("mEdit = mPreferences.edit()")
+                    .addStatement("this.mName = name")
                     .build();
             MethodSpec getMethodSpec = MethodSpec.methodBuilder("get")
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
@@ -205,6 +230,21 @@ public class TestProcessor extends AbstractProcessor {
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                     .returns(targetClassName)
                     .addStatement("return get(\"\")")
+                    .build();
+            MethodSpec clearAllMethodSpec = MethodSpec.methodBuilder("clearAll")
+                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                    .returns(TypeName.VOID)
+                    .addStatement("java.util.Set<String> keys = sMap.keySet();\n" +
+                            "        for (String key : keys){\n" +
+                            "            sMap.get(key).clear();\n" +
+                            "        }")
+                    .build();
+
+            MethodSpec clearMethodSpec = MethodSpec.methodBuilder("clear")
+                    .addModifiers(Modifier.PUBLIC)
+                    .returns(TypeName.VOID)
+                    .addStatement("mEdit.clear().commit()")
+                    .addStatement("sMap.remove(mName)")
                     .build();
 
 
@@ -218,8 +258,11 @@ public class TestProcessor extends AbstractProcessor {
                     .addMethod(getMethodSpec)
                     .addMethod(getMethodSpec2)
                     .addMethod(constructor)
+                    .addMethod(clearMethodSpec)
+                    .addMethod(clearAllMethodSpec)
                     .addField(ClassName.get("android.content", "SharedPreferences", "Editor"), "mEdit")
                     .addField(ClassName.get("android.content", "SharedPreferences"), "mPreferences")
+                    .addField(String.class, "mName")
                     .addField(fieldSpec)
                     .build();
             JavaFile javaFile = JavaFile.builder(getPackageName(typeElement), typeSpec).build();
@@ -233,6 +276,16 @@ public class TestProcessor extends AbstractProcessor {
 
 
         return false;
+    }
+
+    private <T extends Annotation> T getAnnotation(List<? extends Element> members, String simplename, Class<T> aptFieldClass) {
+        for (Element item : members) {
+            if (item.getSimpleName().toString().equals(simplename)) {
+                Annotation annotation = item.getAnnotation(aptFieldClass);
+                return (T) annotation;
+            }
+        }
+        return null;
     }
 
     private String getPackageName(TypeElement type) {

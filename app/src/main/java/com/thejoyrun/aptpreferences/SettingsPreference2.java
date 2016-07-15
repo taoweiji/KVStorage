@@ -3,9 +3,11 @@ package com.thejoyrun.aptpreferences;
 import android.content.SharedPreferences;
 
 import java.util.Map;
+import java.util.Set;
 
 public final class SettingsPreference2 extends Settings {
-    public static final Map sMap = new java.util.HashMap<String, Settings>();
+    public static final Map<String, SettingsPreference2> sMap = new java.util.HashMap<>();
+    private final String mName;
 
     SharedPreferences.Editor mEdit;
 
@@ -14,6 +16,17 @@ public final class SettingsPreference2 extends Settings {
     public SettingsPreference2(String name) {
         mPreferences = AptPreferencesManager.getContext().getSharedPreferences("Settings_" + name, 0);
         mEdit = mPreferences.edit();
+        this.mName = name;
+    }
+
+    @Override
+    public float getTmp() {
+        return mPreferences.getFloat("tmp", super.getTmp());
+    }
+
+    @Override
+    public void setTmp(float tmp) {
+        mEdit.putFloat("tmp", tmp).apply();
     }
 
     @Override
@@ -77,18 +90,18 @@ public final class SettingsPreference2 extends Settings {
     }
 
     @Override
-    public void setPrice(double price) {
-        mEdit.putFloat("price", (float) price).apply();
+    public double getPrice() {
+        return mPreferences.getFloat("price", (float)super.getPrice());
     }
 
     @Override
-    public double getPrice() {
-        return mPreferences.getFloat("price", (float) super.getPrice());
+    public void setPrice(double price) {
+        mEdit.putFloat("price", (float)price).apply();
     }
 
-    public static Settings get(String name) {
+    public static SettingsPreference2 get(String name) {
         if (sMap.containsKey(name)) {
-            return (SettingsPreference2) sMap.get(name);
+            return sMap.get(name);
         }
         synchronized (sMap) {
             if (!sMap.containsKey(name)) {
@@ -96,20 +109,24 @@ public final class SettingsPreference2 extends Settings {
                 sMap.put(name, preference);
             }
         }
-        return (SettingsPreference2) sMap.get(name);
+        return sMap.get(name);
     }
 
-    public static Settings get() {
+    public static SettingsPreference2 get() {
         return get("");
     }
 
-    /**
-     * 设置整块内容,通常用于从网络请求到的json然后设置进来
-     */
-    public void set(Settings settings) {
-        setFirstUse(settings.getFirstUse());
-        setLastUseVersion(settings.getLastUseVersion());
-        setLogin(settings.isLogin());
+
+    public void clear() {
+        mEdit.clear().commit();
+        sMap.remove(mName);
+    }
+
+    public static void clearAll() {
+        Set<String> keys = sMap.keySet();
+        for (String key : keys){
+            sMap.get(key).clear();
+        }
     }
 
 }
