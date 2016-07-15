@@ -5,6 +5,7 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
@@ -149,13 +150,15 @@ public class TestProcessor extends AbstractProcessor {
 
                 }
             }
+
+            TypeName targetClassName = ClassName.get(getPackageName(typeElement), element.getSimpleName() + "Preference");
 //
 //            System.out.println(getPackageName(typeElement));
 //            if (element.getKind() != ElementKind.CLASS) {
 //                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "only support class");
 //            }
             String getMethodString = String.format("if (sMap.containsKey(name)) {\n" +
-                    "            return (%1$s) sMap.get(name);\n" +
+                    "            return sMap.get(name);\n" +
                     "        }\n" +
                     "        synchronized (sMap) {\n" +
                     "            if (!sMap.containsKey(name)) {\n" +
@@ -163,30 +166,30 @@ public class TestProcessor extends AbstractProcessor {
                     "                sMap.put(name, preference);\n" +
                     "            }\n" +
                     "        }\n" +
-                    "        return (%1$s) sMap.get(name)",element.getSimpleName() + "Preference");
+                    "        return sMap.get(name)", element.getSimpleName() + "Preference");
 
             MethodSpec constructor = MethodSpec.constructorBuilder()
                     .addModifiers(Modifier.PUBLIC)
                     .addParameter(String.class, "name")
                     .addStatement(String.format("mPreferences = AptPreferencesManager.getContext().getSharedPreferences(\"%s_\" + name, 0);\n" +
-                            "mEdit = mPreferences.edit()",element.getSimpleName()))
+                            "mEdit = mPreferences.edit()", element.getSimpleName()))
                     .build();
             MethodSpec getMethodSpec = MethodSpec.methodBuilder("get")
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                    .returns(TypeName.get(typeElement.asType()))
+                    .returns(targetClassName)
                     .addParameter(String.class, "name")
                     .addStatement(getMethodString)
                     .build();
             MethodSpec getMethodSpec2 = MethodSpec.methodBuilder("get")
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                    .returns(TypeName.get(typeElement.asType()))
+                    .returns(targetClassName)
                     .addStatement("return get(\"\")")
                     .build();
 
 
 
-            FieldSpec fieldSpec = FieldSpec.builder(Map.class, "sMap", Modifier.PUBLIC, Modifier.FINAL, Modifier.STATIC)
-                    .initializer("new java.util.HashMap<String, Settings>()")
+            FieldSpec fieldSpec = FieldSpec.builder(ParameterizedTypeName.get(ClassName.get(Map.class),ClassName.get(String.class), targetClassName), "sMap", Modifier.PUBLIC, Modifier.FINAL, Modifier.STATIC)
+                    .initializer("new java.util.HashMap<>()")
                     .build();
             TypeSpec typeSpec = TypeSpec.classBuilder(element.getSimpleName() + "Preference")
                     .superclass(TypeName.get(typeElement.asType()))

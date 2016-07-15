@@ -13,7 +13,24 @@ public class Settings {
     private float price2;
     @AptField(serialize = false)
     private float tmp;
+//    @AptPreferences
+//    private Run run;
 
+    public float getTmp() {
+        return tmp;
+    }
+
+    public void setTmp(float tmp) {
+        this.tmp = tmp;
+    }
+
+//    public Run getRun() {
+//        return run;
+//    }
+//
+//    public void setRun(Run run) {
+//        this.run = run;
+//    }
 
     public String getFirstUse() {
         return firstUse;
@@ -62,5 +79,36 @@ public class Settings {
 
     public void setPrice2(float price2) {
         this.price2 = price2;
+    }
+
+
+    public static class Run {
+        private boolean autoPause;
+        private boolean openVoice;
+        private String voiceName;
+
+        public boolean isAutoPause() {
+            return autoPause;
+        }
+
+        public void setAutoPause(boolean autoPause) {
+            this.autoPause = autoPause;
+        }
+
+        public boolean isOpenVoice() {
+            return openVoice;
+        }
+
+        public void setOpenVoice(boolean openVoice) {
+            this.openVoice = openVoice;
+        }
+
+        public String getVoiceName() {
+            return voiceName;
+        }
+
+        public void setVoiceName(String voiceName) {
+            this.voiceName = voiceName;
+        }
     }
 }
