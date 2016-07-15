@@ -76,6 +76,16 @@ public final class SettingsPreference2 extends Settings {
         mEdit.putFloat("price2", price2).apply();
     }
 
+    @Override
+    public void setPrice(double price) {
+        mEdit.putFloat("price", (float) price).apply();
+    }
+
+    @Override
+    public double getPrice() {
+        return mPreferences.getFloat("price", (float) super.getPrice());
+    }
+
     public static Settings get(String name) {
         if (sMap.containsKey(name)) {
             return (SettingsPreference2) sMap.get(name);
