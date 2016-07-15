@@ -1,4 +1,4 @@
-package cn.taoweiji.aptpreferences;
+package com.thejoyrun.aptpreferences;
 
 import org.junit.Test;
 

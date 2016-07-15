@@ -1,4 +1,4 @@
-package com.taoweiji;
+package com.thejoyrun.aptpreferences;
 
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.ClassName;
@@ -7,7 +7,6 @@ import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
-import com.taoweiji.apt.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,7 +33,7 @@ public class TestProcessor extends AbstractProcessor {
 
     @Override
     public Set<String> getSupportedAnnotationTypes() {
-        return Collections.singleton(Test.class.getCanonicalName());
+        return Collections.singleton(AptPreferences.class.getCanonicalName());
     }
 
     @Override
@@ -62,7 +61,32 @@ public class TestProcessor extends AbstractProcessor {
 //                e.printStackTrace();
 //            }
 //        }
-        Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(com.taoweiji.apt.AptPreference.class);
+        MethodSpec initMethodSpec = MethodSpec.methodBuilder("init")
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .returns(void.class).addParameter(ClassName.get("android.content", "Context"), "context")
+                .addStatement("sContext = context")
+                .build();
+        MethodSpec getContextMethodSpec = MethodSpec.methodBuilder("getContext")
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .returns(ClassName.get("android.content", "Context"))
+                .addStatement("return sContext")
+                .build();
+
+        TypeSpec aptPreferencesManager = TypeSpec.classBuilder("AptPreferencesManager")
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addMethod(initMethodSpec).addMethod(getContextMethodSpec)
+                .addField(ClassName.get("android.content", "Context"), "sContext", Modifier.PRIVATE, Modifier.STATIC)
+                .build();
+        JavaFile javaFile1 = JavaFile.builder("com.thejoyrun.aptpreferences", aptPreferencesManager).build();
+
+        try {
+            javaFile1.writeTo(processingEnv.getFiler());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(AptPreferences.class);
         System.out.println("!!!!!生成AptPreference");
         for (Element element : elements) {
             TypeElement typeElement = (TypeElement) element;
@@ -96,7 +120,7 @@ public class TestProcessor extends AbstractProcessor {
                         }
 
                         MethodSpec setMethod = MethodSpec.overriding(executableElement)
-                                .addStatement(String.format("mEdit.%s(\"%s\", %s).apply()",modName, parameter, parameter)).build();
+                                .addStatement(String.format("mEdit.%s(\"%s\", %s).apply()", modName, parameter, parameter)).build();
                         methodSpecs.add(setMethod);
                     } else if (name.startsWith("get") || name.startsWith("is")) {
                         System.out.println("获取：" + name);
@@ -113,12 +137,12 @@ public class TestProcessor extends AbstractProcessor {
                         } else {
                             modName = "getString";
                         }
-                        String simplename = name.replaceFirst("get|is","");
+                        String simplename = name.replaceFirst("get|is", "");
                         simplename = simplename.substring(0, 1).toLowerCase() + simplename.substring(1);
 
 
                         MethodSpec setMethod = MethodSpec.overriding(executableElement)
-                                .addStatement(String.format("return mPreferences.%s(\"%s\", super.%s())",modName,simplename,name))
+                                .addStatement(String.format("return mPreferences.%s(\"%s\", super.%s())", modName, simplename, name))
                                 .build();
                         methodSpecs.add(setMethod);
                     }
@@ -130,32 +154,47 @@ public class TestProcessor extends AbstractProcessor {
 //            if (element.getKind() != ElementKind.CLASS) {
 //                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "only support class");
 //            }
-            MethodSpec main = MethodSpec.methodBuilder("get")
+            String getMethodString = String.format("if (sMap.containsKey(name)) {\n" +
+                    "            return (%1$s) sMap.get(name);\n" +
+                    "        }\n" +
+                    "        synchronized (sMap) {\n" +
+                    "            if (!sMap.containsKey(name)) {\n" +
+                    "                %1$s preference = new %1$s(name);\n" +
+                    "                sMap.put(name, preference);\n" +
+                    "            }\n" +
+                    "        }\n" +
+                    "        return (%1$s) sMap.get(name)",element.getSimpleName() + "Preference");
+
+            MethodSpec constructor = MethodSpec.constructorBuilder()
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(String.class, "name")
+                    .addStatement(String.format("mPreferences = AptPreferencesManager.getContext().getSharedPreferences(\"%s_\" + name, 0);\n" +
+                            "mEdit = mPreferences.edit()",element.getSimpleName()))
+                    .build();
+            MethodSpec getMethodSpec = MethodSpec.methodBuilder("get")
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                     .returns(TypeName.get(typeElement.asType()))
-                    .addParameter(ClassName.get("android.content", "Context"), "context")
                     .addParameter(String.class, "name")
-                    .addStatement("if (sMap.containsKey(name)) {\n" +
-                            "            return (Settings) sMap.get(name);\n" +
-                            "        }\n" +
-                            "        synchronized (sMap) {\n" +
-                            "            if (!sMap.containsKey(name)) {\n" +
-                            "                SettingsPreference2 sharedPresUtil = new SettingsPreference2(context, name);\n" +
-                            "                sMap.put(name, sharedPresUtil);\n" +
-                            "            }\n" +
-                            "        }\n" +
-                            "        return (Settings) sMap.get(name)")
+                    .addStatement(getMethodString)
+                    .build();
+            MethodSpec getMethodSpec2 = MethodSpec.methodBuilder("get")
+                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                    .returns(TypeName.get(typeElement.asType()))
+                    .addStatement("return get(\"\")")
                     .build();
 
 
+
             FieldSpec fieldSpec = FieldSpec.builder(Map.class, "sMap", Modifier.PUBLIC, Modifier.FINAL, Modifier.STATIC)
-                    .initializer("new android.util.ArrayMap<String, Settings>()")
+                    .initializer("new java.util.HashMap<String, Settings>()")
                     .build();
             TypeSpec typeSpec = TypeSpec.classBuilder(element.getSimpleName() + "Preference")
                     .superclass(TypeName.get(typeElement.asType()))
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addMethods(methodSpecs)
-                    .addMethod(main)
+                    .addMethod(getMethodSpec)
+                    .addMethod(getMethodSpec2)
+                    .addMethod(constructor)
                     .addField(ClassName.get("android.content", "SharedPreferences", "Editor"), "mEdit")
                     .addField(ClassName.get("android.content", "SharedPreferences"), "mPreferences")
                     .addField(fieldSpec)
