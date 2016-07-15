@@ -16,8 +16,8 @@ public class Settings {
     private float tmp;
     private static float tmpStatic;
 
-    //    @AptPreferences
-//    private Run run;
+    @AptPreferences
+    private Run run;
 
 
 
@@ -29,13 +29,13 @@ public class Settings {
         this.tmp = tmp;
     }
 
-//    public Run getRun() {
-//        return run;
-//    }
-//
-//    public void setRun(Run run) {
-//        this.run = run;
-//    }
+    public Run getRun() {
+        return run;
+    }
+
+    public void setRun(Run run) {
+        this.run = run;
+    }
 
     public String getFirstUse() {
         return firstUse;

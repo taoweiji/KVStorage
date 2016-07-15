@@ -5,18 +5,19 @@ import android.content.SharedPreferences;
 import java.util.Map;
 import java.util.Set;
 
-public final class SettingsPreference2 extends Settings {
-    public static final Map<String, SettingsPreference2> sMap = new java.util.HashMap<>();
+public final class SettingsPreferences2 extends Settings {
+    public static final Map<String, SettingsPreferences2> sMap = new java.util.HashMap<>();
     private final String mName;
 
     SharedPreferences.Editor mEdit;
 
     SharedPreferences mPreferences;
 
-    public SettingsPreference2(String name) {
+    public SettingsPreferences2(String name) {
         mPreferences = AptPreferencesManager.getContext().getSharedPreferences("Settings_" + name, 0);
         mEdit = mPreferences.edit();
         this.mName = name;
+        this.setRun(new RunPreferences());
     }
 
     @Override
@@ -91,28 +92,28 @@ public final class SettingsPreference2 extends Settings {
 
     @Override
     public double getPrice() {
-        return mPreferences.getFloat("price", (float)super.getPrice());
+        return mPreferences.getFloat("price", (float) super.getPrice());
     }
 
     @Override
     public void setPrice(double price) {
-        mEdit.putFloat("price", (float)price).apply();
+        mEdit.putFloat("price", (float) price).apply();
     }
 
-    public static SettingsPreference2 get(String name) {
+    public static SettingsPreferences2 get(String name) {
         if (sMap.containsKey(name)) {
             return sMap.get(name);
         }
         synchronized (sMap) {
             if (!sMap.containsKey(name)) {
-                SettingsPreference2 preference = new SettingsPreference2(name);
+                SettingsPreferences2 preference = new SettingsPreferences2(name);
                 sMap.put(name, preference);
             }
         }
         return sMap.get(name);
     }
 
-    public static SettingsPreference2 get() {
+    public static SettingsPreferences2 get() {
         return get("");
     }
 
@@ -124,8 +125,41 @@ public final class SettingsPreference2 extends Settings {
 
     public static void clearAll() {
         Set<String> keys = sMap.keySet();
-        for (String key : keys){
+        for (String key : keys) {
             sMap.get(key).clear();
+        }
+    }
+
+    private class RunPreferences extends Run {
+
+        @Override
+        public boolean isAutoPause() {
+            return mPreferences.getBoolean("run.autoPause", super.isAutoPause());
+        }
+
+        @Override
+        public void setAutoPause(boolean autoPause) {
+            mEdit.putBoolean("run.autoPause", autoPause).apply();
+        }
+
+        @Override
+        public boolean isOpenVoice() {
+            return mPreferences.getBoolean("run.openVoice", super.isOpenVoice());
+        }
+
+        @Override
+        public void setOpenVoice(boolean openVoice) {
+            mEdit.putBoolean("run.openVoice", openVoice).apply();
+        }
+
+        @Override
+        public String getVoiceName() {
+            return mPreferences.getString("run.voiceName", super.getVoiceName());
+        }
+
+        @Override
+        public void setVoiceName(String voiceName) {
+            mEdit.putString("run.voiceName", voiceName).apply();
         }
     }
 
