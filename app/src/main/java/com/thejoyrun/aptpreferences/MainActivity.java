@@ -9,17 +9,19 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
-    SettingsPreference settingsPreference;
+    SettingsPreferences settingsPreference;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        settingsPreference = SettingsPreference.get("name");
+        settingsPreference = SettingsPreferences.get("name");
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("last value firstUse: ").append(settingsPreference.getFirstUse()).append('\n');
-        settingsPreference.setFirstUse(new Date().toString());
+        stringBuilder.append("last value firstUse: ").append(settingsPreference.getRun().getVoiceName()).append('\n');
+        settingsPreference.getRun().setVoiceName(new Date().toString());
         TextView textView = (TextView) findViewById(R.id.text);
         textView.setText(stringBuilder.toString());
-//        SettingsPreference2.get()
+//        SettingsPreferences2.get()
+
+//        settingsPreference.getRun().getVoiceName();
     }
 }
