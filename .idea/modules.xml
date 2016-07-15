@@ -5,10 +5,10 @@
       <module fileurl="file://$PROJECT_DIR$/AptPreferences.iml" filepath="$PROJECT_DIR$/AptPreferences.iml" />
       <module fileurl="file://$PROJECT_DIR$/AptPreferences.iml" filepath="$PROJECT_DIR$/AptPreferences.iml" />
       <module fileurl="file://$PROJECT_DIR$/annotation/annotation.iml" filepath="$PROJECT_DIR$/annotation/annotation.iml" />
-      <module fileurl="file://$PROJECT_DIR$/annotation/annotation.iml" filepath="$PROJECT_DIR$/annotation/annotation.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/aptpreference/aptpreference.iml" filepath="$PROJECT_DIR$/aptpreference/aptpreference.iml" />
+      <module fileurl="file://$PROJECT_DIR$/aptpreferences/aptpreferences.iml" filepath="$PROJECT_DIR$/aptpreferences/aptpreferences.iml" />
       <module fileurl="file://$PROJECT_DIR$/aptpreferences-compiler/aptpreferences-compiler.iml" filepath="$PROJECT_DIR$/aptpreferences-compiler/aptpreferences-compiler.iml" />
     </modules>
   </component>

@@ -1,1 +1,1 @@
-include ':app', ':aptpreferences-compiler', ':annotation'
+include ':app', ':aptpreferences-compiler', ':aptpreferences'
