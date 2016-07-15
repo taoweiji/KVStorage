@@ -10,15 +10,7 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/annotation" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/aptpreference" />
-          </set>
-        </option>
-        <option name="myModules">
-          <set>
-            <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/annotation" />
-            <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/aptpreference" />
+            <option value="$PROJECT_DIR$/aptpreferences-compiler" />
           </set>
         </option>
       </GradleProjectSettings>

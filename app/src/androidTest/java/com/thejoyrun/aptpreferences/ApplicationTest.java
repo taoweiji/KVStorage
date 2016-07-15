@@ -1,4 +1,4 @@
-package cn.taoweiji.aptpreferences;
+package com.thejoyrun.aptpreferences;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

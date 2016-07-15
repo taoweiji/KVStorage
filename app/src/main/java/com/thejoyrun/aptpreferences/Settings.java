@@ -1,11 +1,9 @@
-package cn.taoweiji.aptpreferences;
-
-import com.taoweiji.apt.AptPreference;
+package com.thejoyrun.aptpreferences;
 
 /**
  * Created by Wiki on 16/7/15.
  */
-@AptPreference
+@AptPreferences
 public class Settings {
     private String firstUse;
     private String push;
@@ -13,6 +11,8 @@ public class Settings {
     private long time;
     private boolean login;
     private float price2;
+    @AptField(serialize = false)
+    private float tmp;
 
 
     public String getFirstUse() {
