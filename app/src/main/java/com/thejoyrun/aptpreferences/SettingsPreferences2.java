@@ -21,6 +21,34 @@ public final class SettingsPreferences2 extends Settings {
     }
 
     @Override
+    public LoginUser getLoginUser() {
+        String text = mPreferences.getString("loginUser", null);
+        Object object = null;
+        if (text != null){
+            object = AptPreferencesManager.getAptParser().deserialize(LoginUser.class,text);
+        }
+        if (object != null){
+            return (LoginUser) object;
+        }
+        return super.getLoginUser();
+    }
+
+    @Override
+    public void setLoginUser(LoginUser loginUser) {
+        mEdit.putString("loginUser", AptPreferencesManager.getAptParser().serialize(loginUser)).apply();
+    }
+
+    @Override
+    public void setRun(Run run) {
+        super.setRun(run);
+    }
+
+    @Override
+    public Run getRun() {
+        return super.getRun();
+    }
+
+    @Override
     public float getTmp() {
         return mPreferences.getFloat("tmp", super.getTmp());
     }

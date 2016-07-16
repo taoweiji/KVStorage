@@ -16,11 +16,10 @@ public @interface AptField {
 
     boolean save() default true;
 
-//    boolean deserialize() default true;
-
     boolean commit() default false;
 
     boolean force() default false;
 
+    boolean preferences() default false;
 
 }
