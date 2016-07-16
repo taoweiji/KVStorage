@@ -4,7 +4,7 @@ package com.thejoyrun.aptpreferences;
  * Created by Wiki on 16/7/15.
  */
 @AptPreferences
-public class Settings {
+public class SettingsInfo {
     private String firstUse;
     private String push;
     private int lastUseVersion;
@@ -16,7 +16,7 @@ public class Settings {
     private float tmp;
     private static float tmpStatic;
 
-    @AptField(preferences = true)
+    @AptField(preferences = false)
     private Run run;
 
     private LoginUser loginUser;
@@ -107,7 +107,7 @@ public class Settings {
     }
 
     public static void setTmpStatic(float tmpStatic) {
-        Settings.tmpStatic = tmpStatic;
+        SettingsInfo.tmpStatic = tmpStatic;
     }
 
     public static class Run {

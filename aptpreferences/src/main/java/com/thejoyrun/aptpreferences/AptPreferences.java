@@ -8,7 +8,8 @@ import java.lang.annotation.Target;
 /**
  * Created by Wiki on 16/7/15.
  */
-@Target({ElementType.TYPE,ElementType.FIELD})
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.CLASS)
 public @interface AptPreferences {
+
 }
