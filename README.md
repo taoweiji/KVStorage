@@ -1,6 +1,4 @@
-# Android快速持久化框架 AptPreferences
-
-AptPreferences是基于面向对象设计的快速持久化框架，目的是为了简化SharePreferences的使用，减少代码的编写。可以非常快速地保存基本类型和对象。AptPreferences是基于APT技术实现，在编译期间实现代码的生成，支持混淆。支持多库，根据不同的用户区分持久化信息。
+AptPreferences的目标是为了简化SharePreferences的使用，让持久化的使用更加规范。
 
 ### 一、定义持久化Javabean
 
@@ -341,4 +339,34 @@ public final class SettingsPreferences extends Settings {
    }
 }
 ```
+
+## License
+
+
+
+    Copyright 2016 Joyrun, Inc.
+
+
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+
+    you may not use this file except in compliance with the License.
+
+    You may obtain a copy of the License at
+
+
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+
+
+    Unless required by applicable law or agreed to in writing, software
+
+    distributed under the License is distributed on an "AS IS" BASIS,
+
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+    See the License for the specific language governing permissions and
+
+    limitations under the License.
 
