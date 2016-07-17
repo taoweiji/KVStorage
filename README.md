@@ -22,6 +22,150 @@ public class Settings {
    // 不持久化该字段，仅仅保留在内存
    @AptField(save = false)
    private long lastActionTimeMillis;
+
+    // ...
+
+    // get、set方法必须写
+}
+
+```
+
+
+
+### 二、注解及使用说明
+
+我们提供了两个注解@AptPreferences和@AptField(commit = false,save = true,preferences = false)。
+
+###### @AptPreferences
+
+被注解的javabean必须为字段实现setter和getter方法；
+
+###### @AptField
+
+AptField有三个参数可以配置。
+
+1. commit：可以配置使用commit还是apply持久化，默认是apply，需要在一些需要立刻保存到文件的可以使用commit方式，比如在退出APP时保存退出的时间。
+
+2. save：用来声明是否需要持久化这个字段。
+
+3. preferences：这个属性仅仅适用于对象类型的字段，用来声明这个是以对象的方式保存，还是以preferences的方式保存。如果是true，就可以通过settingsPreference.getPush().isOpenPush()的方式存取。
+
+
+
+### 三、初始化
+
+使用之前要进行初始化，建议在Application进行初始化，需要需要保存对象，还需要实现对象的解析器，这里使用Fastjson作为实例：
+
+```
+
+public class MyApplication extends Application{
+   @Override
+   public void onCreate() {
+       super.onCreate();
+       AptPreferencesManager.init(this, new AptParser() {
+           @Override
+           public Object deserialize(Class clazz, String text) {
+               return JSON.parseObject(text,clazz);
+           }
+           @Override
+           public String serialize(Object object) {
+               return JSON.toJSONString(object);
+           }
+       });
+   }
+}
+
+```
+
+
+
+
+
+### 四、获取持久化对象
+
+```
+
+// 提供一个默认的获取方法
+
+SettingsPreferences settingsPreference = SettingsPreferences.get("name");
+
+// 可以根据不用的用户名称获取
+
+SettingsPreferences settingsPreference = SettingsPreferences.get("name");
+
+```
+
+### 五、代码调用
+
+```
+
+// 普通类型保存
+settingsPreference.setUseLanguage("zh");
+settingsPreference.setLastOpenAppTimeMillis(System.currentTimeMillis());
+// 对象类型保存
+Settings.LoginUser loginUser = new Settings.LoginUser();
+loginUser.setUsername("username");
+loginUser.setPassword("password");
+settingsPreference.setLoginUser(loginUser);
+// 对象类型带 @AptField(preferences = true) 注解的保存，相当于把 push相关的放在一个分类
+settingsPreference.getPush().setOpenPush(true);
+
+
+// 获取
+String useLanguage = settingsPreference.getUseLanguage();
+Settings.LoginUser loginUser1 = settingsPreference.getLoginUser();
+boolean openPush = settingsPreference.getPush().isOpenPush();
+```
+
+### 六、默认值
+
+很多时候我们需要在没有获取到值时使用默认值，SharedPreferences本身也是具备默认值的，所以我们也是支持默认值配置。分析生成的代码可以看到：
+
+```
+
+@Override
+public long getLastOpenAppTimeMillis() {
+   return mPreferences.getLong("lastOpenAppTimeMillis", super.getLastOpenAppTimeMillis());
+}
+
+```
+
+如果没有获取到值，会调用父类的方法，那么就可以通过这个方式配置默认值：
+
+```
+
+@AptPreferences
+public class Settings {
+   // 使用commit提交，默认是使用apply提交，配置默认值
+   @AptField(commit = true)
+   private String useLanguage = "zh";
+
+   // ...
+
+}
+
+```
+
+
+
+### 七、详细转换代码
+
+```
+
+@AptPreferences
+public class Settings {
+   private long lastOpenAppTimeMillis;
+   // 使用commit提交，默认是使用apply提交，配置默认值
+   @AptField(commit = true)
+   private String useLanguage = "zh";
+   // 使用preferences的方式保存
+   @AptField(preferences = true)
+   private Push push;
+   // 使用对象的方式保存
+   private LoginUser loginUser;
+   // 不持久化该字段，仅仅保留在内存
+   @AptField(save = false)
+   private long lastActionTimeMillis;
    public long getLastActionTimeMillis() {
        return lastActionTimeMillis;
    }
@@ -196,119 +340,5 @@ public final class SettingsPreferences extends Settings {
        }
    }
 }
-```
-
-### 二、注解及使用说明
-
-我们提供了两个注解@AptPreferences和@AptField(commit = false,save = true,preferences = false)。
-
-###### @AptPreferences
-
-被注解的javabean必须为字段实现setter和getter方法；
-
-###### @AptField
-
-AptField有三个参数可以配置。
-
-1. commit：可以配置使用commit还是apply持久化，默认是apply，需要在一些需要立刻保存到文件的可以使用commit方式，比如在退出APP时保存退出的时间。
-
-2. save：用来声明是否需要持久化这个字段。
-
-3. preferences：这个属性仅仅适用于对象类型的字段，用来声明这个是以对象的方式保存，还是以preferences的方式保存。如果是true，就可以通过settingsPreference.getPush().isOpenPush()的方式存取。
-
-
-
-### 三、初始化
-
-使用之前要进行初始化，建议在Application进行初始化，需要需要保存对象，还需要实现对象的解析器，这里使用Fastjson作为实例：
-
-```
-
-public class MyApplication extends Application{
-   @Override
-   public void onCreate() {
-       super.onCreate();
-       AptPreferencesManager.init(this, new AptParser() {
-           @Override
-           public Object deserialize(Class clazz, String text) {
-               return JSON.parseObject(text,clazz);
-           }
-           @Override
-           public String serialize(Object object) {
-               return JSON.toJSONString(object);
-           }
-       });
-   }
-}
-
-```
-
-
-
-
-
-### 四、获取持久化对象
-
-```
-
-// 提供一个默认的获取方法
-
-SettingsPreferences settingsPreference = SettingsPreferences.get("name");
-
-// 可以根据不用的用户名称获取
-
-SettingsPreferences settingsPreference = SettingsPreferences.get("name");
-
-```
-
-### 五、调用
-
-```
-
-// 普通类型保存
-settingsPreference.setUseLanguage("zh");
-settingsPreference.setLastOpenAppTimeMillis(System.currentTimeMillis());
-// 对象类型保存
-Settings.LoginUser loginUser = new Settings.LoginUser();
-loginUser.setUsername("username");
-loginUser.setPassword("password");
-settingsPreference.setLoginUser(loginUser);
-// 对象类型带 @AptField(preferences = true) 注解的保存，相当于把 push相关的放在一个分类
-settingsPreference.getPush().setOpenPush(true);
-
-
-// 获取
-String useLanguage = settingsPreference.getUseLanguage();
-Settings.LoginUser loginUser1 = settingsPreference.getLoginUser();
-boolean openPush = settingsPreference.getPush().isOpenPush();
-```
-
-### 六、默认值
-
-很多时候我们需要在没有获取到值时使用默认值，SharedPreferences本身也是具备默认值的，所以我们也是支持默认值配置。分析生成的代码可以看到：
-
-```
-
-@Override
-public long getLastOpenAppTimeMillis() {
-   return mPreferences.getLong("lastOpenAppTimeMillis", super.getLastOpenAppTimeMillis());
-}
-
-```
-
-如果没有获取到值，会调用父类的方法，那么就可以通过这个方式配置默认值：
-
-```
-
-@AptPreferences
-public class Settings {
-   // 使用commit提交，默认是使用apply提交，配置默认值
-   @AptField(commit = true)
-   private String useLanguage = "zh";
-
-   // ...
-
-}
-
 ```
 
