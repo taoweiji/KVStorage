@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  * Created by Wiki on 16/7/15.
  */
 
-@Retention(RetentionPolicy.CLASS)
+@Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface AptField {
 
@@ -18,7 +18,7 @@ public @interface AptField {
 
     boolean commit() default false;
 
-    boolean force() default false;
+//    boolean force() default false;
 
     boolean preferences() default false;
 

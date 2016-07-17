@@ -184,7 +184,7 @@ public class AptPreferencesProcessor extends AbstractProcessor {
                         modName = "putString";
                     }
                     // 检查preferences是否登录true，如果是true代表这个对象作为preferences来保存，否则以对象持久化
-                    if (annotation != null && !annotation.preferences()) {
+                    if (annotation != null && annotation.preferences()) {
                         inClassElements.add(fieldElement);
                         continue;
                     }
@@ -331,9 +331,9 @@ public class AptPreferencesProcessor extends AbstractProcessor {
                     .addMethod(constructor)
                     .addMethod(clearMethodSpec)
                     .addMethod(clearAllMethodSpec)
-                    .addField(ClassName.get("android.content", "SharedPreferences", "Editor"), "mEdit")
-                    .addField(ClassName.get("android.content", "SharedPreferences"), "mPreferences")
-                    .addField(String.class, "mName")
+                    .addField(ClassName.get("android.content", "SharedPreferences", "Editor"), "mEdit",Modifier.PRIVATE,Modifier.FINAL)
+                    .addField(ClassName.get("android.content", "SharedPreferences"), "mPreferences",Modifier.PRIVATE,Modifier.FINAL)
+                    .addField(String.class, "mName",Modifier.PRIVATE,Modifier.FINAL)
                     .addField(fieldSpec)
                     .addTypes(typeSpecs)
                     .build();

@@ -1,165 +1,91 @@
 package com.thejoyrun.aptpreferences;
 
+import java.io.Serializable;
+
 /**
  * Created by Wiki on 16/7/15.
  */
 @AptPreferences
 public class Settings {
-    private String firstUse;
-    private String push;
-    private int lastUseVersion;
-    private long time;
-    private boolean login;
-    private float price2;
-    private double price;
-    @AptField(save = false)
-    private float tmp;
-    private static float tmpStatic;
-
+    private long lastOpenAppTimeMillis;
+    // 使用commit提交，默认是使用apply提交
+    @AptField(commit = true)
+    private String useLanguage;
+    // 使用preferences的方式保存
     @AptField(preferences = true)
-    private Run run;
-
+    private Push push;
+    // 使用对象的方式保存
     private LoginUser loginUser;
-
+    // 不持久化该字段，仅仅保留在内存
+    @AptField(save = false)
+    private long lastActionTimeMillis;
+    public long getLastActionTimeMillis() {
+        return lastActionTimeMillis;
+    }
+    public void setLastActionTimeMillis(long lastActionTimeMillis) {
+        this.lastActionTimeMillis = lastActionTimeMillis;
+    }
     public LoginUser getLoginUser() {
         return loginUser;
     }
-
     public void setLoginUser(LoginUser loginUser) {
         this.loginUser = loginUser;
     }
-
-    public float getTmp() {
-        return tmp;
+    public long getLastOpenAppTimeMillis() {
+        return lastOpenAppTimeMillis;
     }
-
-    public void setTmp(float tmp) {
-        this.tmp = tmp;
+    public void setLastOpenAppTimeMillis(long lastOpenAppTimeMillis) {
+        this.lastOpenAppTimeMillis = lastOpenAppTimeMillis;
     }
-
-    public Run getRun() {
-        return run;
+    public String getUseLanguage() {
+        return useLanguage;
     }
-
-    public void setRun(Run run) {
-        this.run = run;
+    public void setUseLanguage(String useLanguage) {
+        this.useLanguage = useLanguage;
     }
-
-    public String getFirstUse() {
-        return firstUse;
-    }
-
-    public void setFirstUse(String firstUse) {
-        this.firstUse = firstUse;
-    }
-
-    public String getPush() {
+    public Push getPush() {
         return push;
     }
-
-    public void setPush(String push) {
+    public void setPush(Push push) {
         this.push = push;
     }
-
-    public int getLastUseVersion() {
-        return lastUseVersion;
-    }
-
-    public void setLastUseVersion(int lastUseVersion) {
-        this.lastUseVersion = lastUseVersion;
-    }
-
-    public long getTime() {
-        return time;
-    }
-
-    public void setTime(long time) {
-        this.time = time;
-    }
-
-    public boolean isLogin() {
-        return login;
-    }
-
-    public void setLogin(boolean login) {
-        this.login = login;
-    }
-
-
-    public float getPrice2() {
-        return price2;
-    }
-
-    public void setPrice2(float price2) {
-        this.price2 = price2;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
-    public static float getTmpStatic() {
-        return tmpStatic;
-    }
-
-    public static void setTmpStatic(float tmpStatic) {
-        Settings.tmpStatic = tmpStatic;
-    }
-
-    public static class Run {
-        private boolean autoPause;
-        private boolean openVoice;
-        private String voiceName;
-
-        public boolean isAutoPause() {
-            return autoPause;
+    public static class Push {
+        private boolean openPush;
+        private boolean vibrate;
+        private boolean voice;
+        public boolean isOpenPush() {
+            return openPush;
         }
-
-        public void setAutoPause(boolean autoPause) {
-            this.autoPause = autoPause;
+        public void setOpenPush(boolean openPush) {
+            this.openPush = openPush;
         }
-
-        public boolean isOpenVoice() {
-            return openVoice;
+        public boolean isVibrate() {
+            return vibrate;
         }
-
-        public void setOpenVoice(boolean openVoice) {
-            this.openVoice = openVoice;
+        public void setVibrate(boolean vibrate) {
+            this.vibrate = vibrate;
         }
-
-        public String getVoiceName() {
-            return voiceName;
+        public boolean isVoice() {
+            return voice;
         }
-
-        public void setVoiceName(String voiceName) {
-            this.voiceName = voiceName;
+        public void setVoice(boolean voice) {
+            this.voice = voice;
         }
     }
-
-    public static class LoginUser {
-        private String username;
-        private String email;
-
+    public static class LoginUser implements Serializable{
+        public String username;
+        public String password;
         public String getUsername() {
             return username;
         }
-
         public void setUsername(String username) {
             this.username = username;
         }
-
-        public String getEmail() {
-            return email;
+        public String getPassword() {
+            return password;
         }
-
-        public void setEmail(String email) {
-            this.email = email;
+        public void setPassword(String password) {
+            this.password = password;
         }
     }
-
-
 }
