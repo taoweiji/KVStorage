@@ -346,7 +346,6 @@ public final class SettingsPreferences extends Settings {
 
 
 ## License
--------
 
     Copyright 2016 Joyrun, Inc.
 
