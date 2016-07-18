@@ -5,7 +5,7 @@ targetCompatibility = 1.7 //必须规定jdk版本,不然会编译错误 PARSE ER
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.google.auto.service:auto-service:1.0-rc2'
-    compile 'com.google.guava:guava:19.0-rc2'
+//    compile 'com.google.guava:guava:19.0-rc2'
     compile 'com.squareup:javapoet:1.7.0'
     compile project(':aptpreferences')
 }
