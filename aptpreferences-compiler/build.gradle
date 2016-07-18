@@ -4,14 +4,18 @@ sourceCompatibility = 1.7 //必须规定jdk版本,不然会编译错误 PARSE ER
 targetCompatibility = 1.7 //必须规定jdk版本,不然会编译错误 PARSE ERROR: unsupported class file version 52.0
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.google.auto.service:auto-service:1.0-rc2'
-    compile 'com.google.auto:auto-common:0.6'
+    compile('com.google.auto.service:auto-service:1.0-rc2') {
+        transitive = true
+        exclude module: 'guava', group: 'com.google.guava'
+    }
+    testCompile('com.google.auto.service:auto-service:1.0-rc2') {
+        transitive = true
+        exclude module: 'guava', group: 'com.google.guava'
+    }
     compile 'com.google.guava:guava:18.0'
-    testCompile 'com.google.auto.service:auto-service:1.0-rc2'
-    testCompile 'com.google.auto:auto-common:0.6'
     testCompile 'com.google.guava:guava:18.0'
     compile 'com.squareup:javapoet:1.7.0'
     compile project(':aptpreferences')
 
 }
-group='com.github.taoweiji'
+group = 'com.github.taoweiji'
