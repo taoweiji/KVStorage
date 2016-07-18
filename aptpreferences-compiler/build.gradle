@@ -9,4 +9,4 @@ dependencies {
     compile 'com.squareup:javapoet:1.7.0'
     compile project(':aptpreferences')
 }
-group = 'com.github.taoweiji'
+group = 'com.github.joyrun'

@@ -5,4 +5,4 @@ targetCompatibility = 1.7 //必须规定jdk版本,不然会编译错误 PARSE ER
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
-group='com.github.taoweiji'
+group='com.github.joyrun'
