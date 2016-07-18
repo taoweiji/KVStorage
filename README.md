@@ -4,7 +4,7 @@
 
 AptPreferences是基于面向对象设计的快速持久化框架，目的是为了简化SharePreferences的使用，减少代码的编写。可以非常快速地保存基本类型和对象。AptPreferences是基于APT技术实现，在编译期间实现代码的生成，支持混淆。支持多库，根据不同的用户区分持久化信息。
 
-### 配置项目
+### 一、配置项目
 ##### 配置项目根目录 build.gradle
 ```
 buildscript {
@@ -35,7 +35,7 @@ dependencies {
 }
 ```
 
-### 一、定义持久化Javabean
+### 二、定义持久化Javabean
 
 使用方法非常简单，先编写一个普通带getter、setter的javabean类，在类头部添加@AptPreferences即可：
 
@@ -65,7 +65,7 @@ public class Settings {
 
 
 
-### 二、注解及使用说明
+### 三、注解及使用说明
 
 我们提供了两个注解@AptPreferences和@AptField(commit = false,save = true,preferences = false)。
 
@@ -85,7 +85,7 @@ AptField有三个参数可以配置。
 
 
 
-### 三、初始化
+### 四、初始化
 
 使用之前要进行初始化，建议在Application进行初始化，需要需要保存对象，还需要实现对象的解析器，这里使用Fastjson作为实例：
 
@@ -114,7 +114,7 @@ public class MyApplication extends Application{
 
 
 
-### 四、获取持久化对象
+### 五、获取持久化对象
 
 ```
 
@@ -128,7 +128,7 @@ SettingsPreferences settingsPreference = SettingsPreferences.get("name");
 
 ```
 
-### 五、代码调用
+### 六、代码调用
 
 ```
 
@@ -150,7 +150,7 @@ Settings.LoginUser loginUser1 = settingsPreference.getLoginUser();
 boolean openPush = settingsPreference.getPush().isOpenPush();
 ```
 
-### 六、默认值
+### 七、默认值
 
 很多时候我们需要在没有获取到值时使用默认值，SharedPreferences本身也是具备默认值的，所以我们也是支持默认值配置。分析生成的代码可以看到：
 
@@ -181,7 +181,7 @@ public class Settings {
 
 
 
-### 七、详细转换代码
+### 八、详细转换代码
 
 ```
 
