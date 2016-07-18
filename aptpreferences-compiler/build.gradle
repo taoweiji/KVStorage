@@ -8,5 +8,8 @@ dependencies {
     compile 'com.google.auto:auto-common:0.6'
     compile 'com.squareup:javapoet:1.7.0'
     compile project(':aptpreferences')
+    configurations.all {
+        resolutionStrategy.force 'com.google.guava:guava:18.0'
+    }
 }
-//group='com.github.taoweiji'
+group='com.github.taoweiji'
