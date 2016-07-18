@@ -1,5 +1,5 @@
 # Android快速持久化框架 AptPreferences
-[![Release](https://jitpack.io/v/taoweiji/AptPreferences.svg)](https://jitpack.io/#taoweiji/AptPreferences)
+[![Release](https://jitpack.io/v/joyrun/AptPreferences.svg)](https://jitpack.io/#joyrun/AptPreferences)
 
 AptPreferences是基于面向对象设计的快速持久化框架，目的是为了简化SharePreferences的使用，减少代码的编写。可以非常快速地保存基本类型和对象。AptPreferences是基于APT技术实现，在编译期间实现代码的生成，支持混淆。支持多库，根据不同的用户区分持久化信息。
 
