@@ -313,7 +313,7 @@ public class AptPreferencesProcessor extends AbstractProcessor {
             MethodSpec constructor = MethodSpec.constructorBuilder()
                     .addModifiers(Modifier.PUBLIC)
                     .addParameter(String.class, "name")
-                    .addStatement(String.format("mPreferences = AptPreferencesManager.getContext().getSharedPreferences(\"%s_\" + name, 0)", element.getSimpleName()))
+                    .addStatement(String.format("mPreferences = com.thejoyrun.aptpreferences.AptPreferencesManager.getContext().getSharedPreferences(\"%s_\" + name, 0)", element.getSimpleName()))
                     .addStatement("mEdit = mPreferences.edit()")
                     .addStatement("this.mName = name")
                     .addStatement(inClassInitString.toString())
