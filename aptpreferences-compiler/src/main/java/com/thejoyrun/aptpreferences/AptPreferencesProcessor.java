@@ -195,7 +195,7 @@ public class AptPreferencesProcessor extends AbstractProcessor {
                 if (name.startsWith("set")) {
                     if (isObject) {
                         MethodSpec setMethod = MethodSpec.overriding(executableElement)
-                                .addStatement(String.format("mEdit.putString(\"%1$s\", AptPreferencesManager.getAptParser().serialize(%1$s)).apply();", fieldName))
+                                .addStatement(String.format("mEdit.putString(\"%1$s\", com.thejoyrun.aptpreferences.AptPreferencesManager.getAptParser().serialize(%1$s)).apply();", fieldName))
                                 .build();
                         methodSpecs.add(setMethod);
                         continue;
@@ -228,7 +228,7 @@ public class AptPreferencesProcessor extends AbstractProcessor {
                                 .addStatement(String.format("String text = mPreferences.getString(\"%s\", null)", fieldName))
                                 .addStatement("Object object = null")
                                 .addStatement(String.format("if (text != null){\n" +
-                                        "            object = AptPreferencesManager.getAptParser().deserialize(%1$s.class,text);\n" +
+                                        "            object = com.thejoyrun.aptpreferences.AptPreferencesManager.getAptParser().deserialize(%1$s.class,text);\n" +
                                         "        }\n" +
                                         "        if (object != null){\n" +
                                         "            return (%1$s) object;\n" +
