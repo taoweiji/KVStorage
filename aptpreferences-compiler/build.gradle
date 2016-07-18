@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'com.github.dcendents.android-maven'
 sourceCompatibility = 1.7 //必须规定jdk版本,不然会编译错误 PARSE ERROR: unsupported class file version 52.0
 targetCompatibility = 1.7 //必须规定jdk版本,不然会编译错误 PARSE ERROR: unsupported class file version 52.0
 dependencies {
@@ -7,3 +8,4 @@ dependencies {
     compile 'com.squareup:javapoet:1.7.0'
     compile project(':aptpreferences')
 }
+group='com.github.taoweiji'
