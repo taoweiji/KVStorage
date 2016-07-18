@@ -3,6 +3,37 @@
 
 AptPreferences是基于面向对象设计的快速持久化框架，目的是为了简化SharePreferences的使用，减少代码的编写。可以非常快速地保存基本类型和对象。AptPreferences是基于APT技术实现，在编译期间实现代码的生成，支持混淆。支持多库，根据不同的用户区分持久化信息。
 
+### 配置项目
+##### 配置项目根目录 build.gradle
+```
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:1.5.0"
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()
+        maven { url "https://jitpack.io" }
+    }
+}
+```
+##### 配置app build.gradle
+```
+apply plugin: 'com.android.application'
+apply plugin: 'com.neenbedankt.android-apt'
+
+//...
+dependencies {
+   compile 'com.github.joyrun:AptPreferences:0.1.9'
+}
+```
+
 ### 一、定义持久化Javabean
 
 使用方法非常简单，先编写一个普通带getter、setter的javabean类，在类头部添加@AptPreferences即可：
