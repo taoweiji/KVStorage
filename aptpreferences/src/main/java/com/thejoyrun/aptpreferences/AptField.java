@@ -22,4 +22,9 @@ public @interface AptField {
 
     boolean preferences() default false;
 
+    /**
+     * 如果是true全局参数通过get(name1)或者get(name2)使用都是一样的,如果是false,那么字段名会带上name(name1_fieldName)
+     * @return
+     */
+    boolean global() default true;
 }
