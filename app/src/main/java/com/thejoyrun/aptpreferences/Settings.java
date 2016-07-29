@@ -7,14 +7,16 @@ import java.io.Serializable;
  */
 @AptPreferences
 public class Settings {
+    @AptField(commit = true,global = false)
     private long lastOpenAppTimeMillis;
     // 使用commit提交，默认是使用apply提交
-    @AptField(commit = true)
+    @AptField(commit = true,global = false)
     private String useLanguage;
     // 使用preferences的方式保存
-    @AptField(preferences = true)
+    @AptField(preferences = true,global = false)
     private Push push;
     // 使用对象的方式保存
+    @AptField(preferences = true,global = false)
     private LoginUser loginUser;
     // 不持久化该字段，仅仅保留在内存
     @AptField(save = false)
