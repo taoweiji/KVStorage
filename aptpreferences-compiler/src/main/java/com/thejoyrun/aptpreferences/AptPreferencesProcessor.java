@@ -59,6 +59,17 @@ public class AptPreferencesProcessor extends AbstractProcessor {
                 .returns(ClassName.get("com.thejoyrun.aptpreferences", "AptParser"))
                 .addStatement("return sAptParser")
                 .build();
+        MethodSpec getUserInfoMethodSpec = MethodSpec.methodBuilder("getUserInfo")
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .returns(String.class)
+                .addStatement("return sUserInfo")
+                .build();
+        MethodSpec setUserInfoMethodSpec = MethodSpec.methodBuilder("setUserInfo")
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .addParameter(String.class, "userInfo")
+                .returns(TypeName.VOID)
+                .addStatement("sUserInfo = userInfo")
+                .build();
 
 
         TypeSpec aptPreferencesManager = TypeSpec.classBuilder("AptPreferencesManager")
@@ -66,8 +77,11 @@ public class AptPreferencesProcessor extends AbstractProcessor {
                 .addMethod(initMethodSpec)
                 .addMethod(getContextMethodSpec)
                 .addMethod(getAptParserMethodSpec)
+                .addMethod(setUserInfoMethodSpec)
+                .addMethod(getUserInfoMethodSpec)
                 .addField(ClassName.get("android.content", "Context"), "sContext", Modifier.PRIVATE, Modifier.STATIC)
                 .addField(ClassName.get("com.thejoyrun.aptpreferences", "AptParser"), "sAptParser", Modifier.PRIVATE, Modifier.STATIC)
+                .addField(String.class, "sUserInfo", Modifier.PRIVATE, Modifier.STATIC)
                 .build();
         JavaFile javaFile = JavaFile.builder("com.thejoyrun.aptpreferences", aptPreferencesManager).build();
 
@@ -125,6 +139,7 @@ public class AptPreferencesProcessor extends AbstractProcessor {
                 // 从方法名称提取成员变量的名称
                 String fieldName = name.replaceFirst("get|is|set", "");
                 fieldName = fieldName.substring(0, 1).toLowerCase() + fieldName.substring(1);
+
                 // 根据名称提取成员变量的元素
                 Element fieldElement = getElement(members, fieldName);
                 if (fieldElement == null) {
@@ -190,12 +205,16 @@ public class AptPreferencesProcessor extends AbstractProcessor {
                     }
                     isObject = true;
                 }
+                String globalFieldName = "";
+                if (annotation != null && !annotation.global()) {
+                    globalFieldName = " mName + \"_\" + ";
+                }
 
 
                 if (name.startsWith("set")) {
                     if (isObject) {
                         MethodSpec setMethod = MethodSpec.overriding(executableElement)
-                                .addStatement(String.format("mEdit.putString(\"%1$s\", com.thejoyrun.aptpreferences.AptPreferencesManager.getAptParser().serialize(%1$s)).apply();", fieldName))
+                                .addStatement(String.format("mEdit.putString(%2$s\"%1$s\", com.thejoyrun.aptpreferences.AptPreferencesManager.getAptParser().serialize(%1$s)).apply();", fieldName,globalFieldName))
                                 .build();
                         methodSpecs.add(setMethod);
                         continue;
@@ -205,18 +224,18 @@ public class AptPreferencesProcessor extends AbstractProcessor {
                     if (annotation != null && annotation.commit()) {
                         if (isDouble) {
                             setMethod = MethodSpec.overriding(executableElement)
-                                    .addStatement(String.format("mEdit.%s(\"%s\", (float)%s).commit()", modName, fieldName, fieldName)).build();
+                                    .addStatement(String.format("mEdit.%s(%s\"%s\", (float)%s).commit()", modName,globalFieldName, fieldName, fieldName)).build();
                         } else {
                             setMethod = MethodSpec.overriding(executableElement)
-                                    .addStatement(String.format("mEdit.%s(\"%s\", %s).commit()", modName, fieldName, fieldName)).build();
+                                    .addStatement(String.format("mEdit.%s(%s\"%s\", %s).commit()", modName, globalFieldName, fieldName,fieldName)).build();
                         }
                     } else {
                         if (isDouble) {
                             setMethod = MethodSpec.overriding(executableElement)
-                                    .addStatement(String.format("mEdit.%s(\"%s\", (float)%s).apply()", modName, fieldName, fieldName)).build();
+                                    .addStatement(String.format("mEdit.%s(%s\"%s\", (float)%s).apply()", modName,globalFieldName, fieldName, fieldName)).build();
                         } else {
                             setMethod = MethodSpec.overriding(executableElement)
-                                    .addStatement(String.format("mEdit.%s(\"%s\", %s).apply()", modName, fieldName, fieldName)).build();
+                                    .addStatement(String.format("mEdit.%s(%s\"%s\", %s).apply()", modName,globalFieldName,  fieldName,fieldName)).build();
                         }
                     }
                     methodSpecs.add(setMethod);
@@ -225,7 +244,7 @@ public class AptPreferencesProcessor extends AbstractProcessor {
 
                     if (isObject) {
                         MethodSpec setMethod = MethodSpec.overriding(executableElement)
-                                .addStatement(String.format("String text = mPreferences.getString(\"%s\", null)", fieldName))
+                                .addStatement(String.format("String text = mPreferences.getString(%s\"%s\", null)",globalFieldName, fieldName))
                                 .addStatement("Object object = null")
                                 .addStatement(String.format("if (text != null){\n" +
                                         "            object = com.thejoyrun.aptpreferences.AptPreferencesManager.getAptParser().deserialize(%1$s.class,text);\n" +
@@ -244,13 +263,13 @@ public class AptPreferencesProcessor extends AbstractProcessor {
 
                     if (isDouble) {
                         MethodSpec setMethod = MethodSpec.overriding(executableElement)
-                                .addStatement(String.format("return mPreferences.%s(\"%s\", (float)super.%s())", modName, fieldName, name))
+                                .addStatement(String.format("return mPreferences.%s(%s\"%s\", (float)super.%s())", modName,globalFieldName, fieldName, name))
                                 .build();
 
                         methodSpecs.add(setMethod);
                     } else {
                         MethodSpec setMethod = MethodSpec.overriding(executableElement)
-                                .addStatement(String.format("return mPreferences.%s(\"%s\", super.%s())", modName, fieldName, name))
+                                .addStatement(String.format("return mPreferences.%s(%s\"%s\", super.%s())",modName,globalFieldName,  fieldName, name))
                                 .build();
 
                         methodSpecs.add(setMethod);
