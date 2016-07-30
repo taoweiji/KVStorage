@@ -4,6 +4,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
+import com.thejoyrun.aptpreferences.preferences.Settings;
+import com.thejoyrun.aptpreferences.preferences.SettingsPreferences;
+
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
