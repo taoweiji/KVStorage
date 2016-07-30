@@ -207,14 +207,14 @@ public class AptPreferencesProcessor extends AbstractProcessor {
                 }
                 String globalFieldName = "";
                 if (annotation != null && !annotation.global()) {
-                    globalFieldName = " com.thejoyrun.aptpreferences.AptPreferencesManager.getUserInfo() + \"_\" + ";
+                    globalFieldName = "AptPreferencesManager.getUserInfo() + \"_\" + ";
                 }
 
 
                 if (name.startsWith("set")) {
                     if (isObject) {
                         MethodSpec setMethod = MethodSpec.overriding(executableElement)
-                                .addStatement(String.format("mEdit.putString(%2$s\"%1$s\", com.thejoyrun.aptpreferences.AptPreferencesManager.getAptParser().serialize(%1$s)).apply();", fieldName,globalFieldName))
+                                .addStatement(String.format("mEdit.putString(%2$s\"%1$s\", AptPreferencesManager.getAptParser().serialize(%1$s)).apply();", fieldName,globalFieldName))
                                 .build();
                         methodSpecs.add(setMethod);
                         continue;
@@ -247,7 +247,7 @@ public class AptPreferencesProcessor extends AbstractProcessor {
                                 .addStatement(String.format("String text = mPreferences.getString(%s\"%s\", null)",globalFieldName, fieldName))
                                 .addStatement("Object object = null")
                                 .addStatement(String.format("if (text != null){\n" +
-                                        "            object = com.thejoyrun.aptpreferences.AptPreferencesManager.getAptParser().deserialize(%1$s.class,text);\n" +
+                                        "            object = AptPreferencesManager.getAptParser().deserialize(%1$s.class,text);\n" +
                                         "        }\n" +
                                         "        if (object != null){\n" +
                                         "            return (%1$s) object;\n" +
@@ -332,7 +332,7 @@ public class AptPreferencesProcessor extends AbstractProcessor {
             MethodSpec constructor = MethodSpec.constructorBuilder()
                     .addModifiers(Modifier.PUBLIC)
                     .addParameter(String.class, "name")
-                    .addStatement(String.format("mPreferences = com.thejoyrun.aptpreferences.AptPreferencesManager.getContext().getSharedPreferences(\"%s_\" + name, 0)", element.getSimpleName()))
+                    .addStatement("mPreferences = $T.getContext().getSharedPreferences($S + name, 0)",ClassName.get("com.thejoyrun.aptpreferences","AptPreferencesManager"), element.getSimpleName())
                     .addStatement("mEdit = mPreferences.edit()")
                     .addStatement("this.mName = name")
                     .addStatement(inClassInitString.toString())

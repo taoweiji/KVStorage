@@ -1,4 +1,7 @@
-package com.thejoyrun.aptpreferences;
+package com.thejoyrun.aptpreferences.preferences;
+
+import com.thejoyrun.aptpreferences.AptField;
+import com.thejoyrun.aptpreferences.AptPreferences;
 
 import java.io.Serializable;
 
