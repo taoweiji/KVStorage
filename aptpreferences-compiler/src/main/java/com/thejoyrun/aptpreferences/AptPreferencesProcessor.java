@@ -207,7 +207,7 @@ public class AptPreferencesProcessor extends AbstractProcessor {
                 }
                 String globalFieldName = "";
                 if (annotation != null && !annotation.global()) {
-                    globalFieldName = " mName + \"_\" + ";
+                    globalFieldName = " com.thejoyrun.aptpreferences.AptPreferencesManager.getUserInfo() + \"_\" + ";
                 }
 
 
