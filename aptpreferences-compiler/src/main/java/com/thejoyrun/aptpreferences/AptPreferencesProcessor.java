@@ -324,19 +324,15 @@ public class AptPreferencesProcessor extends AbstractProcessor {
             System.out.println("建立内部类," + inClassElements.size());
 
             List<TypeSpec> typeSpecs = getInClassTypeSpec(inClassElements);
-            StringBuilder inClassInitString = new StringBuilder();
-            for (TypeSpec typeSpec : typeSpecs) {
-                System.out.println("##########" + typeSpec.name);
-                inClassInitString.append(String.format("this.set%s(new %s());", typeSpec.name.replace("Preferences", ""), typeSpec.name)).append('\n');
-            }
-            MethodSpec constructor = MethodSpec.constructorBuilder()
+            MethodSpec.Builder constructor = MethodSpec.constructorBuilder()
                     .addModifiers(Modifier.PUBLIC)
                     .addParameter(String.class, "name")
                     .addStatement("mPreferences = $T.getContext().getSharedPreferences($S + name, 0)",ClassName.get("com.thejoyrun.aptpreferences","AptPreferencesManager"), element.getSimpleName())
                     .addStatement("mEdit = mPreferences.edit()")
-                    .addStatement("this.mName = name")
-                    .addStatement(inClassInitString.toString())
-                    .build();
+                    .addStatement("this.mName = name");
+            for (TypeSpec typeSpec : typeSpecs) {
+                constructor.addStatement(String.format("this.set%s(new %s())", typeSpec.name.replace("Preferences", ""), typeSpec.name));
+            }
 
             FieldSpec fieldSpec = FieldSpec.builder(ParameterizedTypeName.get(ClassName.get(Map.class), ClassName.get(String.class), targetClassName), "sMap", Modifier.PUBLIC, Modifier.FINAL, Modifier.STATIC)
                     .initializer("new java.util.HashMap<>()")
@@ -347,7 +343,7 @@ public class AptPreferencesProcessor extends AbstractProcessor {
                     .addMethods(methodSpecs)
                     .addMethod(getMethodSpec)
                     .addMethod(getMethodSpec2)
-                    .addMethod(constructor)
+                    .addMethod(constructor.build())
                     .addMethod(clearMethodSpec)
                     .addMethod(clearAllMethodSpec)
                     .addField(ClassName.get("android.content", "SharedPreferences", "Editor"), "mEdit",Modifier.PRIVATE,Modifier.FINAL)
