@@ -246,15 +246,16 @@ public class AptPreferencesProcessor extends AbstractProcessor {
 
 
                     if (isObject) {
+                        TypeName className = ClassName.get(fieldElement.asType());
                         MethodSpec setMethod = MethodSpec.overriding(executableElement)
                                 .addStatement(String.format("String text = mPreferences.getString(realName(\"%s\",%b), null)", fieldName,globalField))
                                 .addStatement("Object object = null")
-                                .addStatement(String.format("if (text != null){\n" +
-                                        "            object = AptPreferencesManager.getAptParser().deserialize(%1$s.class,text);\n" +
-                                        "        }\n" +
-                                        "        if (object != null){\n" +
-                                        "            return (%1$s) object;\n" +
-                                        "        }", fieldElement.asType().toString()))
+                                .addCode("if (text != null){\n" +
+                                        "   object = AptPreferencesManager.getAptParser().deserialize($T.class,text);\n" +
+                                        "}\n" +
+                                        "if (object != null){\n" +
+                                        "   return ($T) object;\n" +
+                                        "}\n", className,className)
                                 .addStatement(String.format("return super.%s()", executableElement.getSimpleName()))
                                 .build();
                         methodSpecs.add(setMethod);
