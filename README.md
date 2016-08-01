@@ -2,7 +2,31 @@
 
 [![Release](https://jitpack.io/v/joyrun/AptPreferences.svg)](https://jitpack.io/#joyrun/AptPreferences)
 
-AptPreferences是基于面向对象设计的快速持久化框架，目的是为了简化SharePreferences的使用，减少代码的编写。可以非常快速地保存基本类型和对象。AptPreferences是基于APT技术实现，在编译期间实现代码的生成，支持混淆。支持多库，根据不同的用户区分持久化信息。
+AptPreferences是基于面向对象设计的快速持久化框架，目的是为了简化SharePreferences的使用，减少代码的编写。可以非常快速地保存基本类型和对象。AptPreferences是基于APT技术实现，在编译期间实现代码的生成，支持混淆。根据不同的用户区分持久化信息。
+
+### 特点
+1. 把通过的Javabean变成SharedPreferences操作类
+2. 支持保存基本类型及对象
+3. 支持根据不同的用户区分持久化信息。
+
+### 简单例子
+```
+@AptPreferences
+public class Settings {
+   private long loginTime;
+   private LoginUser loginUser;
+    // get、set方法
+}
+```
+使用方法
+```
+// 保存信息
+SettingsPreference.get().setLoginTime(System.currentTimeMillis());
+SettingsPreference.get().set(new LoginUser("Wiki"));
+// 获取信息
+long loginTime = SettingsPreference.get().getLoginTime();
+LoginUser loginUser = SettingsPreference.get().getLoginUser();
+```
 
 ### 一、配置项目
 ##### 配置项目根目录 build.gradle
