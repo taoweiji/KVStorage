@@ -27,8 +27,10 @@ SettingsPreference.get().set(new LoginUser("Wiki"));
 long loginTime = SettingsPreference.get().getLoginTime();
 LoginUser loginUser = SettingsPreference.get().getLoginUser();
 ```
-
+### 项目地址
+https://github.com/joyrun/AptPreferences
 ### 一、配置项目
+
 ##### 配置项目根目录 build.gradle
 ```
 buildscript {
