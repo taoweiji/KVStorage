@@ -10,7 +10,7 @@ import java.io.Serializable;
  */
 @AptPreferences
 public class Settings {
-    @AptField(commit = true,global = false)
+    @AptField(commit = true,global = true)
     private long lastOpenAppTimeMillis;
     // 使用commit提交，默认是使用apply提交
     @AptField(commit = true,global = false)
