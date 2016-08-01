@@ -18,7 +18,7 @@ public class Settings {
     // get、set方法
 }
 ```
-使用方法
+
 ```
 // 保存信息
 SettingsPreference.get().setLoginTime(System.currentTimeMillis());
