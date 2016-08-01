@@ -40,62 +40,64 @@ public class AptPreferencesProcessor extends AbstractProcessor {
         return Collections.singleton(AptPreferences.class.getCanonicalName());
     }
 
-    private void addAptPreferencesManager() {
-        System.out.println("AptPreferences:addAptPreferencesManager");
-        MethodSpec initMethodSpec = MethodSpec.methodBuilder("init")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .returns(void.class)
-                .addParameter(ClassName.get("android.content", "Context"), "context")
-                .addParameter(ClassName.get("com.thejoyrun.aptpreferences", "AptParser"), "aptParser")
-                .addStatement("sContext = context")
-                .addStatement("sAptParser = aptParser")
-                .build();
-        MethodSpec getContextMethodSpec = MethodSpec.methodBuilder("getContext")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .returns(ClassName.get("android.content", "Context"))
-                .addStatement("return sContext")
-                .build();
-        MethodSpec getAptParserMethodSpec = MethodSpec.methodBuilder("getAptParser")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .returns(ClassName.get("com.thejoyrun.aptpreferences", "AptParser"))
-                .addStatement("return sAptParser")
-                .build();
-        MethodSpec getUserInfoMethodSpec = MethodSpec.methodBuilder("getUserInfo")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .returns(String.class)
-                .addStatement("return sUserInfo")
-                .build();
-        MethodSpec setUserInfoMethodSpec = MethodSpec.methodBuilder("setUserInfo")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .addParameter(String.class, "userInfo")
-                .returns(TypeName.VOID)
-                .addStatement("sUserInfo = userInfo")
-                .build();
-
-
-        TypeSpec aptPreferencesManager = TypeSpec.classBuilder("AptPreferencesManager")
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addMethod(initMethodSpec)
-                .addMethod(getContextMethodSpec)
-                .addMethod(getAptParserMethodSpec)
-                .addMethod(setUserInfoMethodSpec)
-                .addMethod(getUserInfoMethodSpec)
-                .addField(ClassName.get("android.content", "Context"), "sContext", Modifier.PRIVATE, Modifier.STATIC)
-                .addField(ClassName.get("com.thejoyrun.aptpreferences", "AptParser"), "sAptParser", Modifier.PRIVATE, Modifier.STATIC)
-                .addField(String.class, "sUserInfo", Modifier.PRIVATE, Modifier.STATIC)
-                .build();
-        JavaFile javaFile = JavaFile.builder("com.thejoyrun.aptpreferences", aptPreferencesManager).build();
-
-        try {
-            javaFile.writeTo(processingEnv.getFiler());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+//    private void addAptPreferencesManager() {
+//        System.out.println("AptPreferences:addAptPreferencesManager");
+//        ClassName AptParserClassName = ClassName.get("com.thejoyrun.aptpreferences", "AptParser");
+//        ClassName ContextClassName = ClassName.get("android.content", "Context");
+//        MethodSpec initMethodSpec = MethodSpec.methodBuilder("init")
+//                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+//                .returns(void.class)
+//                .addParameter(ContextClassName, "context")
+//                .addParameter(AptParserClassName, "aptParser")
+//                .addStatement("sContext = context")
+//                .addStatement("sAptParser = aptParser")
+//                .build();
+//        MethodSpec getContextMethodSpec = MethodSpec.methodBuilder("getContext")
+//                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+//                .returns(ClassName.get("android.content", "Context"))
+//                .addStatement("return sContext")
+//                .build();
+//        MethodSpec getAptParserMethodSpec = MethodSpec.methodBuilder("getAptParser")
+//                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+//                .returns(AptParserClassName)
+//                .addStatement("return sAptParser")
+//                .build();
+//        MethodSpec getUserInfoMethodSpec = MethodSpec.methodBuilder("getUserInfo")
+//                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+//                .returns(String.class)
+//                .addStatement("return sUserInfo")
+//                .build();
+//        MethodSpec setUserInfoMethodSpec = MethodSpec.methodBuilder("setUserInfo")
+//                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+//                .addParameter(String.class, "userInfo")
+//                .returns(TypeName.VOID)
+//                .addStatement("sUserInfo = userInfo")
+//                .build();
+//
+//
+//        TypeSpec aptPreferencesManager = TypeSpec.classBuilder("AptPreferencesManager")
+//                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+//                .addMethod(initMethodSpec)
+//                .addMethod(getContextMethodSpec)
+//                .addMethod(getAptParserMethodSpec)
+//                .addMethod(setUserInfoMethodSpec)
+//                .addMethod(getUserInfoMethodSpec)
+//                .addField(ContextClassName, "sContext", Modifier.PRIVATE, Modifier.STATIC)
+//                .addField(AptParserClassName, "sAptParser", Modifier.PRIVATE, Modifier.STATIC)
+//                .addField(String.class, "sUserInfo", Modifier.PRIVATE, Modifier.STATIC)
+//                .build();
+//        JavaFile javaFile = JavaFile.builder("com.thejoyrun.aptpreferences", aptPreferencesManager).build();
+//
+//        try {
+//            javaFile.writeTo(processingEnv.getFiler());
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        addAptPreferencesManager();
+//        addAptPreferencesManager();
         Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(AptPreferences.class);
         System.out.println("!!!!!生成AptPreferences");
 
@@ -303,10 +305,9 @@ public class AptPreferencesProcessor extends AbstractProcessor {
                     .addCode("if (sMap.containsKey(name)) {\n  return sMap.get(name);\n}\n")
                     .addCode("synchronized (sMap) {\n" +
                             "   if (!sMap.containsKey(name)) {\n" +
-                            "       $T preferences = new $T(name);\n" +
-                            "       sMap.put(name, preferences);\n" +
+                            "       sMap.put(name, new $T(name));\n" +
                             "   }\n" +
-                            "}\n",targetClassName,targetClassName)
+                            "}\n",targetClassName)
                     .addStatement("return sMap.get(name)")
                     .build();
             MethodSpec getMethodSpec2 = MethodSpec.methodBuilder("get")
