@@ -16,7 +16,7 @@ public class SettingsInfo {
     private float tmp;
     private static float tmpStatic;
 
-    @AptField(preferences = true)
+    @AptField(preferences = true,global = false)
     private Run run;
 
     private LoginUser loginUser;

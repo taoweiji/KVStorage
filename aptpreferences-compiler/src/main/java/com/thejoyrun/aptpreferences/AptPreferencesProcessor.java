@@ -387,7 +387,11 @@ public class AptPreferencesProcessor extends AbstractProcessor {
         List<TypeSpec> typeSpecs = new ArrayList<>();
         for (Element element : inClassElements) {
             TypeElement typeElement = elementUtils.getTypeElement(TypeName.get(element.asType()).toString());
-
+            boolean globalField = true;
+            AptField tmp = element.getAnnotation(AptField.class);
+            if (tmp != null && !tmp.global()) {
+                globalField = false;
+            }
             List<? extends Element> members = elementUtils.getAllMembers(typeElement);
             List<MethodSpec> methodSpecs = new ArrayList<>();
             for (Element item : members) {
@@ -441,18 +445,18 @@ public class AptPreferencesProcessor extends AbstractProcessor {
                         if (annotation != null && annotation.commit()) {
                             if (isDouble) {
                                 setMethod = MethodSpec.overriding(executableElement)
-                                        .addStatement(String.format("mEdit.%s(\"%s\", (float)%s).commit()", modName, typeElement.getSimpleName() + "." + fieldName, fieldName)).build();
+                                        .addStatement(String.format("mEdit.%s(realName(\"%s\",%b), (float)%s).commit()", modName, typeElement.getSimpleName() + "." + fieldName,globalField, fieldName)).build();
                             } else {
                                 setMethod = MethodSpec.overriding(executableElement)
-                                        .addStatement(String.format("mEdit.%s(\"%s\", %s).commit()", modName, typeElement.getSimpleName() + "." + fieldName, fieldName)).build();
+                                        .addStatement(String.format("mEdit.%s(realName(\"%s\",%b), %s).commit()", modName, typeElement.getSimpleName() + "." + fieldName,globalField, fieldName)).build();
                             }
                         } else {
                             if (isDouble) {
                                 setMethod = MethodSpec.overriding(executableElement)
-                                        .addStatement(String.format("mEdit.%s(\"%s\", (float)%s).apply()", modName, typeElement.getSimpleName() + "." + fieldName, fieldName)).build();
+                                        .addStatement(String.format("mEdit.%s(realName(\"%s\",%b), (float)%s).apply()", modName, typeElement.getSimpleName() + "." + fieldName,globalField, fieldName)).build();
                             } else {
                                 setMethod = MethodSpec.overriding(executableElement)
-                                        .addStatement(String.format("mEdit.%s(\"%s\", %s).apply()", modName, typeElement.getSimpleName() + "." + fieldName, fieldName)).build();
+                                        .addStatement(String.format("mEdit.%s(realName(\"%s\",%b), %s).apply()", modName, typeElement.getSimpleName() + "." + fieldName,globalField, fieldName)).build();
                             }
                         }
 
@@ -481,13 +485,13 @@ public class AptPreferencesProcessor extends AbstractProcessor {
 
                         if (isDouble) {
                             MethodSpec setMethod = MethodSpec.overriding(executableElement)
-                                    .addStatement(String.format("return mPreferences.%s(\"%s\", (float)super.%s())", modName, typeElement.getSimpleName() + "." + fieldName, name))
+                                    .addStatement(String.format("return mPreferences.%s(realName(\"%s\",%b), (float)super.%s())", modName, typeElement.getSimpleName() + "." + fieldName,globalField, name))
                                     .build();
 
                             methodSpecs.add(setMethod);
                         } else {
                             MethodSpec setMethod = MethodSpec.overriding(executableElement)
-                                    .addStatement(String.format("return mPreferences.%s(\"%s\", super.%s())", modName, typeElement.getSimpleName() + "." + fieldName, name))
+                                    .addStatement(String.format("return mPreferences.%s(realName(\"%s\",%b), super.%s())", modName, typeElement.getSimpleName() + "." + fieldName,globalField, name))
                                     .build();
 
                             methodSpecs.add(setMethod);
