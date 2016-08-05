@@ -10,6 +10,7 @@ AptPreferences是基于面向对象设计的快速持久化框架，目的是为
 3. 支持根据不同的用户区分持久化信息。
 
 ### 简单例子
+##### 定义javabean类
 ```
 @AptPreferences
 public class Settings {
@@ -18,8 +19,10 @@ public class Settings {
     // get、set方法
 }
 ```
-
+##### 使用方式
 ```
+//初始化
+AptPreferencesManager.init(this, null);
 // 保存信息
 SettingsPreference.get().setLoginTime(System.currentTimeMillis());
 SettingsPreference.get().set(new LoginUser("Wiki"));
@@ -27,6 +30,7 @@ SettingsPreference.get().set(new LoginUser("Wiki"));
 long loginTime = SettingsPreference.get().getLoginTime();
 LoginUser loginUser = SettingsPreference.get().getLoginUser();
 ```
+从上面的简单例子可以看到，我们需要做SharePreferences持久化，仅仅定义一个简单的javabean类（Settings）并添加注解即可，这个框架会根据javabean生成带有持久化功能的SettingsPreference类，通过这个类就可以非常简单去保持或者获取数据，大大降低了SharePreferences麻烦，也可以保持对象。
 ### 项目地址
 https://github.com/joyrun/AptPreferences
 ### 一、配置项目
