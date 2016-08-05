@@ -57,8 +57,8 @@ apply plugin: 'com.neenbedankt.android-apt'
 
 //...
 dependencies {
-    compile 'com.github.joyrun.AptPreferences:aptpreferences:0.2.3'
-    apt 'com.github.joyrun.AptPreferences:aptpreferences-compiler:0.2.3'
+    compile 'com.github.joyrun.AptPreferences:aptpreferences:0.4.2'
+    apt 'com.github.joyrun.AptPreferences:aptpreferences-compiler:0.4.2'
 }
 ```
 
