@@ -17,7 +17,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        SettingsPreferences settingsPreference = SettingsPreferences.get("name");
+        SettingsPreferences settingsPreference = SettingsPreferences.get();
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("last value firstUse: ").append(settingsPreference.getUseLanguage()).append('\n');
         settingsPreference.setUseLanguage(new Date().toString());
