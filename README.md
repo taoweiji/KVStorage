@@ -113,7 +113,7 @@ AptField有三个参数可以配置。
 2. save：用来声明是否需要持久化这个字段。
 
 3. preferences：这个属性仅仅适用于对象类型的字段，用来声明这个是以对象的方式保存，还是以preferences的方式保存。如果是true，就可以通过settingsPreference.getPush().isOpenPush()的方式存取。
-
+4. global：默认是true，如果设置为false时，和AptPreferencesManager.setUserInfo()配合，可以为不同的用户进行持久化，达到每个用户有不用的设置。
 
 
 ### 四、初始化
@@ -145,18 +145,10 @@ public class MyApplication extends Application{
 
 
 
-### 五、获取持久化对象
-
+### 五、根据不同的用户设置
+如果app支持多用户登录，需要根据不用的用户持久化，可以通过下面方法配置。再通过@AptField(global = false)，就可以针对某个字段跟随用户不同进行持久化。
 ```
-
-// 提供一个默认的获取方法
-
-SettingsPreferences settingsPreference = SettingsPreferences.get("name");
-
-// 可以根据不用的用户名称获取
-
-SettingsPreferences settingsPreference = SettingsPreferences.get("name");
-
+AptPreferencesManager.setUserInfo("uid");
 ```
 
 ### 六、代码调用
@@ -164,15 +156,15 @@ SettingsPreferences settingsPreference = SettingsPreferences.get("name");
 ```
 
 // 普通类型保存
-settingsPreference.setUseLanguage("zh");
-settingsPreference.setLastOpenAppTimeMillis(System.currentTimeMillis());
+SettingsPreferences.get().setUseLanguage("zh");
+SettingsPreferences.get().setLastOpenAppTimeMillis(System.currentTimeMillis());
 // 对象类型保存
 Settings.LoginUser loginUser = new Settings.LoginUser();
 loginUser.setUsername("username");
 loginUser.setPassword("password");
-settingsPreference.setLoginUser(loginUser);
+SettingsPreferences.get().setLoginUser(loginUser);
 // 对象类型带 @AptField(preferences = true) 注解的保存，相当于把 push相关的放在一个分类
-settingsPreference.getPush().setOpenPush(true);
+SettingsPreferences.get().getPush().setOpenPush(true);
 
 
 // 获取
