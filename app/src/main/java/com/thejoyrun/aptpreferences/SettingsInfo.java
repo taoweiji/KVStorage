@@ -18,7 +18,7 @@ public class SettingsInfo {
 
     @AptField(preferences = true,global = false)
     private Run run;
-
+    @AptField(global = false)
     private LoginUser loginUser;
 
     public LoginUser getLoginUser() {

@@ -156,7 +156,7 @@ public class AptPreferencesProcessor extends AbstractProcessor {
                 if (name.startsWith("set")) {
                     if (isObject) {
                         MethodSpec setMethod = MethodSpec.overriding(executableElement)
-                                .addStatement(String.format("mEdit.putString(getRealKey(\"%1$s\",%b), AptPreferencesManager.getAptParser().serialize(%1$s)).apply();", fieldName, globalField))
+                                .addStatement(String.format("mEdit.putString(realName(\"%s\",%b), AptPreferencesManager.getAptParser().serialize(%s)).apply()", fieldName,globalField,fieldName))
                                 .build();
                         methodSpecs.add(setMethod);
                         continue;
