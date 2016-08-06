@@ -2,11 +2,9 @@ package com.thejoyrun.aptpreferences;
 
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
@@ -16,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -40,66 +37,10 @@ public class AptPreferencesProcessor extends AbstractProcessor {
         return Collections.singleton(AptPreferences.class.getCanonicalName());
     }
 
-//    private void addAptPreferencesManager() {
-//        System.out.println("AptPreferences:addAptPreferencesManager");
-//        ClassName AptParserClassName = ClassName.get("com.thejoyrun.aptpreferences", "AptParser");
-//        ClassName ContextClassName = ClassName.get("android.content", "Context");
-//        MethodSpec initMethodSpec = MethodSpec.methodBuilder("init")
-//                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-//                .returns(void.class)
-//                .addParameter(ContextClassName, "context")
-//                .addParameter(AptParserClassName, "aptParser")
-//                .addStatement("sContext = context")
-//                .addStatement("sAptParser = aptParser")
-//                .build();
-//        MethodSpec getContextMethodSpec = MethodSpec.methodBuilder("getContext")
-//                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-//                .returns(ClassName.get("android.content", "Context"))
-//                .addStatement("return sContext")
-//                .build();
-//        MethodSpec getAptParserMethodSpec = MethodSpec.methodBuilder("getAptParser")
-//                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-//                .returns(AptParserClassName)
-//                .addStatement("return sAptParser")
-//                .build();
-//        MethodSpec getUserInfoMethodSpec = MethodSpec.methodBuilder("getUserInfo")
-//                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-//                .returns(String.class)
-//                .addStatement("return sUserInfo")
-//                .build();
-//        MethodSpec setUserInfoMethodSpec = MethodSpec.methodBuilder("setUserInfo")
-//                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-//                .addParameter(String.class, "userInfo")
-//                .returns(TypeName.VOID)
-//                .addStatement("sUserInfo = userInfo")
-//                .build();
-//
-//
-//        TypeSpec aptPreferencesManager = TypeSpec.classBuilder("AptPreferencesManager")
-//                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-//                .addMethod(initMethodSpec)
-//                .addMethod(getContextMethodSpec)
-//                .addMethod(getAptParserMethodSpec)
-//                .addMethod(setUserInfoMethodSpec)
-//                .addMethod(getUserInfoMethodSpec)
-//                .addField(ContextClassName, "sContext", Modifier.PRIVATE, Modifier.STATIC)
-//                .addField(AptParserClassName, "sAptParser", Modifier.PRIVATE, Modifier.STATIC)
-//                .addField(String.class, "sUserInfo", Modifier.PRIVATE, Modifier.STATIC)
-//                .build();
-//        JavaFile javaFile = JavaFile.builder("com.thejoyrun.aptpreferences", aptPreferencesManager).build();
-//
-//        try {
-//            javaFile.writeTo(processingEnv.getFiler());
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-//        addAptPreferencesManager();
         Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(AptPreferences.class);
-        System.out.println("!!!!!生成AptPreferences");
 
         for (Element element : elements) {
             // 判断是否Class
@@ -137,8 +78,6 @@ public class AptPreferencesProcessor extends AbstractProcessor {
                 } else {
                     continue;
                 }
-
-                System.out.println(name);
                 // 从方法名称提取成员变量的名称
                 String fieldName = name.replaceFirst("get|is|set", "");
                 fieldName = fieldName.substring(0, 1).toLowerCase() + fieldName.substring(1);
@@ -217,7 +156,7 @@ public class AptPreferencesProcessor extends AbstractProcessor {
                 if (name.startsWith("set")) {
                     if (isObject) {
                         MethodSpec setMethod = MethodSpec.overriding(executableElement)
-                                .addStatement(String.format("mEdit.putString(realName(\"%1$s\",%b), AptPreferencesManager.getAptParser().serialize(%1$s)).apply();", fieldName,globalField))
+                                .addStatement(String.format("mEdit.putString(getRealKey(\"%1$s\",%b), AptPreferencesManager.getAptParser().serialize(%1$s)).apply();", fieldName, globalField))
                                 .build();
                         methodSpecs.add(setMethod);
                         continue;
@@ -227,18 +166,18 @@ public class AptPreferencesProcessor extends AbstractProcessor {
                     if (annotation != null && annotation.commit()) {
                         if (isDouble) {
                             setMethod = MethodSpec.overriding(executableElement)
-                                    .addStatement(String.format("mEdit.%s(realName(\"%s\",%b), (float)%s).commit()", modName, fieldName,globalField, fieldName)).build();
+                                    .addStatement(String.format("mEdit.%s(getRealKey(\"%s\",%b), (float)%s).commit()", modName, fieldName, globalField, fieldName)).build();
                         } else {
                             setMethod = MethodSpec.overriding(executableElement)
-                                    .addStatement(String.format("mEdit.%s(realName(\"%s\",%b), %s).commit()", modName, fieldName,globalField,fieldName)).build();
+                                    .addStatement(String.format("mEdit.%s(getRealKey(\"%s\",%b), %s).commit()", modName, fieldName, globalField, fieldName)).build();
                         }
                     } else {
                         if (isDouble) {
                             setMethod = MethodSpec.overriding(executableElement)
-                                    .addStatement(String.format("mEdit.%s(realName(\"%s\",%b), (float)%s).apply()", modName, fieldName,globalField, fieldName)).build();
+                                    .addStatement(String.format("mEdit.%s(getRealKey(\"%s\",%b), (float)%s).apply()", modName, fieldName, globalField, fieldName)).build();
                         } else {
                             setMethod = MethodSpec.overriding(executableElement)
-                                    .addStatement(String.format("mEdit.%s(realName(\"%s\",%b), %s).apply()", modName,  fieldName,globalField,fieldName)).build();
+                                    .addStatement(String.format("mEdit.%s(getRealKey(\"%s\",%b), %s).apply()", modName, fieldName, globalField, fieldName)).build();
                         }
                     }
                     methodSpecs.add(setMethod);
@@ -248,14 +187,14 @@ public class AptPreferencesProcessor extends AbstractProcessor {
                     if (isObject) {
                         TypeName className = ClassName.get(fieldElement.asType());
                         MethodSpec setMethod = MethodSpec.overriding(executableElement)
-                                .addStatement(String.format("String text = mPreferences.getString(realName(\"%s\",%b), null)", fieldName,globalField))
+                                .addStatement(String.format("String text = mPreferences.getString(getRealKey(\"%s\",%b), null)", fieldName, globalField))
                                 .addStatement("Object object = null")
                                 .addCode("if (text != null){\n" +
                                         "   object = AptPreferencesManager.getAptParser().deserialize($T.class,text);\n" +
                                         "}\n" +
                                         "if (object != null){\n" +
                                         "   return ($T) object;\n" +
-                                        "}\n", className,className)
+                                        "}\n", className, className)
                                 .addStatement(String.format("return super.%s()", executableElement.getSimpleName()))
                                 .build();
                         methodSpecs.add(setMethod);
@@ -267,13 +206,13 @@ public class AptPreferencesProcessor extends AbstractProcessor {
 
                     if (isDouble) {
                         MethodSpec setMethod = MethodSpec.overriding(executableElement)
-                                .addStatement(String.format("return mPreferences.%s(realName(\"%s\",%b), (float)super.%s())", modName, fieldName,globalField, name))
+                                .addStatement(String.format("return mPreferences.%s(getRealKey(\"%s\",%b), (float)super.%s())", modName, fieldName, globalField, name))
                                 .build();
 
                         methodSpecs.add(setMethod);
                     } else {
                         MethodSpec setMethod = MethodSpec.overriding(executableElement)
-                                .addStatement(String.format("return mPreferences.%s(realName(\"%s\",%b), super.%s())",modName,  fieldName,globalField, name))
+                                .addStatement(String.format("return mPreferences.%s(getRealKey(\"%s\",%b), super.%s())", modName, fieldName, globalField, name))
                                 .build();
 
                         methodSpecs.add(setMethod);
@@ -282,92 +221,55 @@ public class AptPreferencesProcessor extends AbstractProcessor {
             }
 
             TypeName targetClassName = ClassName.get(getPackageName(typeElement), element.getSimpleName() + "Preferences");
-//
-//            System.out.println(getPackageName(typeElement));
-//            if (element.getKind() != ElementKind.CLASS) {
-//                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "only support class");
-//            }
-            String getMethodString = String.format("if (sMap.containsKey(name)) {\n" +
-                    "            return sMap.get(name);\n" +
-                    "        }\n" +
-                    "        synchronized (sMap) {\n" +
-                    "            if (!sMap.containsKey(name)) {\n" +
-                    "                %1$s preferences = new %1$s(name);\n" +
-                    "                sMap.put(name, preferences);\n" +
-                    "            }\n" +
-                    "        }\n" +
-                    "        return sMap.get(name)", element.getSimpleName() + "Preferences");
-
-
-            MethodSpec getMethodSpec = MethodSpec.methodBuilder("get")
-                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                    .returns(targetClassName)
-                    .addParameter(String.class, "name")
-                    .addCode("if (sMap.containsKey(name)) {\n  return sMap.get(name);\n}\n")
-                    .addCode("synchronized (sMap) {\n" +
-                            "   if (!sMap.containsKey(name)) {\n" +
-                            "       sMap.put(name, new $T(name));\n" +
-                            "   }\n" +
-                            "}\n",targetClassName)
-                    .addStatement("return sMap.get(name)")
-                    .build();
             MethodSpec getMethodSpec2 = MethodSpec.methodBuilder("get")
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                     .returns(targetClassName)
-                    .addStatement("return get(\"\")")
-                    .build();
-            MethodSpec clearAllMethodSpec = MethodSpec.methodBuilder("clearAll")
-                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                    .returns(TypeName.VOID)
-                    .addStatement("java.util.Set<String> keys = sMap.keySet()")
-                    .addCode(CodeBlock.of("for (String key : keys){\n  sMap.get(key).clear();\n}\n"))
+                    .addCode("if (sInstance == null){\n" +
+                            "   synchronized ($T.class){\n" +
+                            "      if (sInstance == null){\n" +
+                            "          sInstance = new $T();\n" +
+                            "      }\n" +
+                            "   }\n" +
+                            "}\n" +
+                            "return sInstance;\n", targetClassName, targetClassName)
                     .build();
 
             MethodSpec clearMethodSpec = MethodSpec.methodBuilder("clear")
                     .addModifiers(Modifier.PUBLIC)
                     .returns(TypeName.VOID)
                     .addStatement("mEdit.clear().commit()")
-                    .addStatement("sMap.remove(mName)")
                     .build();
 
-            MethodSpec realNameMethodSpec = MethodSpec.methodBuilder("realName")
+            MethodSpec getRealKeyMethodSpec = MethodSpec.methodBuilder("getRealKey")
                     .addModifiers(Modifier.PUBLIC)
                     .returns(String.class)
-                    .addParameter(String.class,"key")
-                    .addParameter(TypeName.BOOLEAN,"global")
+                    .addParameter(String.class, "key")
+                    .addParameter(TypeName.BOOLEAN, "global")
                     .addStatement("return global ? key : AptPreferencesManager.getUserInfo() + key")
                     .build();
-
-
-            System.out.println("建立内部类," + inClassElements.size());
 
             List<TypeSpec> typeSpecs = getInClassTypeSpec(inClassElements);
             MethodSpec.Builder constructor = MethodSpec.constructorBuilder()
                     .addModifiers(Modifier.PUBLIC)
-                    .addParameter(String.class, "name")
-                    .addStatement("mPreferences = $T.getContext().getSharedPreferences($S + name, 0)",ClassName.get("com.thejoyrun.aptpreferences","AptPreferencesManager"), element.getSimpleName())
-                    .addStatement("mEdit = mPreferences.edit()")
-                    .addStatement("this.mName = name");
+                    .addStatement("mPreferences = $T.getContext().getSharedPreferences($S, 0)", ClassName.get("com.thejoyrun.aptpreferences", "AptPreferencesManager"), element.getSimpleName())
+                    .addStatement("mEdit = mPreferences.edit()");
             for (TypeSpec typeSpec : typeSpecs) {
                 constructor.addStatement(String.format("this.set%s(new %s())", typeSpec.name.replace("Preferences", ""), typeSpec.name));
             }
 
-            FieldSpec fieldSpec = FieldSpec.builder(ParameterizedTypeName.get(ClassName.get(Map.class), ClassName.get(String.class), targetClassName), "sMap", Modifier.PUBLIC, Modifier.FINAL, Modifier.STATIC)
-                    .initializer("new java.util.HashMap<>()")
+            FieldSpec fieldSpec = FieldSpec.builder(targetClassName, "sInstance", Modifier.PRIVATE, Modifier.STATIC)
+                    .initializer("new $T()", targetClassName)
                     .build();
             TypeSpec typeSpec = TypeSpec.classBuilder(element.getSimpleName() + "Preferences")
                     .superclass(TypeName.get(typeElement.asType()))
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addMethods(methodSpecs)
-                    .addMethod(getMethodSpec)
                     .addMethod(getMethodSpec2)
                     .addMethod(constructor.build())
                     .addMethod(clearMethodSpec)
-                    .addMethod(clearAllMethodSpec)
-                    .addMethod(realNameMethodSpec)
-                    .addField(ClassName.get("android.content", "SharedPreferences", "Editor"), "mEdit",Modifier.PRIVATE,Modifier.FINAL)
-                    .addField(ClassName.get("android.content", "SharedPreferences"), "mPreferences",Modifier.PRIVATE,Modifier.FINAL)
-                    .addField(String.class, "mName",Modifier.PRIVATE,Modifier.FINAL)
+                    .addMethod(getRealKeyMethodSpec)
+                    .addField(ClassName.get("android.content", "SharedPreferences", "Editor"), "mEdit", Modifier.PRIVATE, Modifier.FINAL)
+                    .addField(ClassName.get("android.content", "SharedPreferences"), "mPreferences", Modifier.PRIVATE, Modifier.FINAL)
                     .addField(fieldSpec)
                     .addTypes(typeSpecs)
                     .build();
@@ -402,7 +304,6 @@ public class AptPreferencesProcessor extends AbstractProcessor {
                     if (name.equals("getClass")) {
                         continue;
                     }
-                    System.out.println(name);
                     //忽略final、static 方法
                     if (executableElement.getModifiers().contains(Modifier.FINAL) || executableElement.getModifiers().contains(Modifier.STATIC)) {
                         continue;
@@ -418,12 +319,10 @@ public class AptPreferencesProcessor extends AbstractProcessor {
                     if (annotation != null && !annotation.save()) {
                         continue;
                     }
-                    System.out.println(name);
                     TypeName type = TypeName.get(fieldElement.asType());
 
 
                     if (name.startsWith("set")) {
-                        System.out.println("设置：" + name);
                         String modName;
                         boolean isDouble = false;
                         if (type.equals(TypeName.BOOLEAN)) {
@@ -445,26 +344,24 @@ public class AptPreferencesProcessor extends AbstractProcessor {
                         if (annotation != null && annotation.commit()) {
                             if (isDouble) {
                                 setMethod = MethodSpec.overriding(executableElement)
-                                        .addStatement(String.format("mEdit.%s(realName(\"%s\",%b), (float)%s).commit()", modName, typeElement.getSimpleName() + "." + fieldName,globalField, fieldName)).build();
+                                        .addStatement(String.format("mEdit.%s(getRealKey(\"%s\",%b), (float)%s).commit()", modName, typeElement.getSimpleName() + "." + fieldName, globalField, fieldName)).build();
                             } else {
                                 setMethod = MethodSpec.overriding(executableElement)
-                                        .addStatement(String.format("mEdit.%s(realName(\"%s\",%b), %s).commit()", modName, typeElement.getSimpleName() + "." + fieldName,globalField, fieldName)).build();
+                                        .addStatement(String.format("mEdit.%s(getRealKey(\"%s\",%b), %s).commit()", modName, typeElement.getSimpleName() + "." + fieldName, globalField, fieldName)).build();
                             }
                         } else {
                             if (isDouble) {
                                 setMethod = MethodSpec.overriding(executableElement)
-                                        .addStatement(String.format("mEdit.%s(realName(\"%s\",%b), (float)%s).apply()", modName, typeElement.getSimpleName() + "." + fieldName,globalField, fieldName)).build();
+                                        .addStatement(String.format("mEdit.%s(getRealKey(\"%s\",%b), (float)%s).apply()", modName, typeElement.getSimpleName() + "." + fieldName, globalField, fieldName)).build();
                             } else {
                                 setMethod = MethodSpec.overriding(executableElement)
-                                        .addStatement(String.format("mEdit.%s(realName(\"%s\",%b), %s).apply()", modName, typeElement.getSimpleName() + "." + fieldName,globalField, fieldName)).build();
+                                        .addStatement(String.format("mEdit.%s(getRealKey(\"%s\",%b), %s).apply()", modName, typeElement.getSimpleName() + "." + fieldName, globalField, fieldName)).build();
                             }
                         }
 
 
                         methodSpecs.add(setMethod);
                     } else if (name.startsWith("get") || name.startsWith("is")) {
-                        System.out.println("获取：" + name);
-//                        TypeName type = TypeName.get(executableElement.getReturnType());
                         String modName;
                         boolean isDouble = false;
                         if (type.equals(TypeName.BOOLEAN)) {
@@ -485,13 +382,13 @@ public class AptPreferencesProcessor extends AbstractProcessor {
 
                         if (isDouble) {
                             MethodSpec setMethod = MethodSpec.overriding(executableElement)
-                                    .addStatement(String.format("return mPreferences.%s(realName(\"%s\",%b), (float)super.%s())", modName, typeElement.getSimpleName() + "." + fieldName,globalField, name))
+                                    .addStatement(String.format("return mPreferences.%s(getRealKey(\"%s\",%b), (float)super.%s())", modName, typeElement.getSimpleName() + "." + fieldName, globalField, name))
                                     .build();
 
                             methodSpecs.add(setMethod);
                         } else {
                             MethodSpec setMethod = MethodSpec.overriding(executableElement)
-                                    .addStatement(String.format("return mPreferences.%s(realName(\"%s\",%b), super.%s())", modName, typeElement.getSimpleName() + "." + fieldName,globalField, name))
+                                    .addStatement(String.format("return mPreferences.%s(getRealKey(\"%s\",%b), super.%s())", modName, typeElement.getSimpleName() + "." + fieldName, globalField, name))
                                     .build();
 
                             methodSpecs.add(setMethod);
