@@ -40,7 +40,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:1.5.0"
+        classpath "com.android.tools.build:gradle:3.1.0"
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }
 }
@@ -55,12 +55,12 @@ allprojects {
 ##### 配置app build.gradle
 ```
 apply plugin: 'com.android.application'
-apply plugin: 'com.neenbedankt.android-apt'
+
 
 //...
 dependencies {
-    compile 'com.github.joyrun.AptPreferences:aptpreferences:0.4.4'
-    apt 'com.github.joyrun.AptPreferences:aptpreferences-compiler:0.4.4'
+    implementation 'com.github.joyrun.AptPreferences:aptpreferences:0.9.0'
+    annotationProcessor 'com.github.joyrun.AptPreferences:aptpreferences-compiler:0.9.0'
 }
 ```
 
