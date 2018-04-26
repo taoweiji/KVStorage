@@ -154,9 +154,10 @@ public class AptPreferencesProcessor extends AbstractProcessor {
 
 
                 if (name.startsWith("set")) {
+                    String parameterName = executableElement.getParameters().get(0).getSimpleName().toString();
                     if (isObject) {
                         MethodSpec setMethod = MethodSpec.overriding(executableElement)
-                                .addStatement(String.format("mEdit.putString(getRealKey(\"%s\",%b), AptPreferencesManager.getAptParser().serialize(%s)).apply()", fieldName,globalField,fieldName))
+                                .addStatement(String.format("mEdit.putString(getRealKey(\"%s\",%b), AptPreferencesManager.getAptParser().serialize(%s)).apply()", fieldName,globalField,parameterName))
                                 .build();
                         methodSpecs.add(setMethod);
                         continue;
@@ -166,18 +167,18 @@ public class AptPreferencesProcessor extends AbstractProcessor {
                     if (annotation != null && annotation.commit()) {
                         if (isDouble) {
                             setMethod = MethodSpec.overriding(executableElement)
-                                    .addStatement(String.format("mEdit.%s(getRealKey(\"%s\",%b), (float)%s).commit()", modName, fieldName, globalField, fieldName)).build();
+                                    .addStatement(String.format("mEdit.%s(getRealKey(\"%s\",%b), (float)%s).commit()", modName, fieldName, globalField, parameterName)).build();
                         } else {
                             setMethod = MethodSpec.overriding(executableElement)
-                                    .addStatement(String.format("mEdit.%s(getRealKey(\"%s\",%b), %s).commit()", modName, fieldName, globalField, fieldName)).build();
+                                    .addStatement(String.format("mEdit.%s(getRealKey(\"%s\",%b), %s).commit()", modName, fieldName, globalField, parameterName)).build();
                         }
                     } else {
                         if (isDouble) {
                             setMethod = MethodSpec.overriding(executableElement)
-                                    .addStatement(String.format("mEdit.%s(getRealKey(\"%s\",%b), (float)%s).apply()", modName, fieldName, globalField, fieldName)).build();
+                                    .addStatement(String.format("mEdit.%s(getRealKey(\"%s\",%b), (float)%s).apply()", modName, fieldName, globalField, parameterName)).build();
                         } else {
                             setMethod = MethodSpec.overriding(executableElement)
-                                    .addStatement(String.format("mEdit.%s(getRealKey(\"%s\",%b), %s).apply()", modName, fieldName, globalField, fieldName)).build();
+                                    .addStatement(String.format("mEdit.%s(getRealKey(\"%s\",%b), %s).apply()", modName, fieldName, globalField, parameterName)).build();
                         }
                     }
                     methodSpecs.add(setMethod);
@@ -341,21 +342,23 @@ public class AptPreferencesProcessor extends AbstractProcessor {
                         }
                         MethodSpec setMethod;
 
+                        String parameterName = executableElement.getParameters().get(0).getSimpleName().toString();
+
                         if (annotation != null && annotation.commit()) {
                             if (isDouble) {
                                 setMethod = MethodSpec.overriding(executableElement)
-                                        .addStatement(String.format("mEdit.%s(getRealKey(\"%s\",%b), (float)%s).commit()", modName, typeElement.getSimpleName() + "." + fieldName, globalField, fieldName)).build();
+                                        .addStatement(String.format("mEdit.%s(getRealKey(\"%s\",%b), (float)%s).commit()", modName, typeElement.getSimpleName() + "." + fieldName, globalField, parameterName)).build();
                             } else {
                                 setMethod = MethodSpec.overriding(executableElement)
-                                        .addStatement(String.format("mEdit.%s(getRealKey(\"%s\",%b), %s).commit()", modName, typeElement.getSimpleName() + "." + fieldName, globalField, fieldName)).build();
+                                        .addStatement(String.format("mEdit.%s(getRealKey(\"%s\",%b), %s).commit()", modName, typeElement.getSimpleName() + "." + fieldName, globalField, parameterName)).build();
                             }
                         } else {
                             if (isDouble) {
                                 setMethod = MethodSpec.overriding(executableElement)
-                                        .addStatement(String.format("mEdit.%s(getRealKey(\"%s\",%b), (float)%s).apply()", modName, typeElement.getSimpleName() + "." + fieldName, globalField, fieldName)).build();
+                                        .addStatement(String.format("mEdit.%s(getRealKey(\"%s\",%b), (float)%s).apply()", modName, typeElement.getSimpleName() + "." + fieldName, globalField, parameterName)).build();
                             } else {
                                 setMethod = MethodSpec.overriding(executableElement)
-                                        .addStatement(String.format("mEdit.%s(getRealKey(\"%s\",%b), %s).apply()", modName, typeElement.getSimpleName() + "." + fieldName, globalField, fieldName)).build();
+                                        .addStatement(String.format("mEdit.%s(getRealKey(\"%s\",%b), %s).apply()", modName, typeElement.getSimpleName() + "." + fieldName, globalField, parameterName)).build();
                             }
                         }
 

@@ -1,1 +1,1 @@
-include ':app', ':aptpreferences-compiler', ':aptpreferences', ':aptpreferences-annotation'
+include ':app', ':aptpreferences-compiler', ':aptpreferences', ':aptpreferences-annotation', ':app-kotlin'
