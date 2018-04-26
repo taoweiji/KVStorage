@@ -59,8 +59,8 @@ apply plugin: 'com.android.application'
 
 //...
 dependencies {
-    implementation 'com.github.joyrun.AptPreferences:aptpreferences:0.9.0'
-    annotationProcessor 'com.github.joyrun.AptPreferences:aptpreferences-compiler:0.9.0'
+    implementation 'com.github.joyrun.AptPreferences:aptpreferences:0.9.5'
+    annotationProcessor 'com.github.joyrun.AptPreferences:aptpreferences-compiler:0.9.5'
 }
 ```
 
