@@ -1,7 +1,7 @@
 package com.thejoyrun.aptpreferences;
 
+import android.app.Activity;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
 import com.thejoyrun.aptpreferences.preferences.Settings;
@@ -9,7 +9,7 @@ import com.thejoyrun.aptpreferences.preferences.SettingsPreferences;
 
 import java.util.Date;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
 
 
     @Override

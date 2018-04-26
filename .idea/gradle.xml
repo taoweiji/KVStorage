@@ -9,6 +9,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/app-kotlin" />
             <option value="$PROJECT_DIR$/aptpreferences" />
             <option value="$PROJECT_DIR$/aptpreferences-annotation" />
             <option value="$PROJECT_DIR$/aptpreferences-compiler" />
