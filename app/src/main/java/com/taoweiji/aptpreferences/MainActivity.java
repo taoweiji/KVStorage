@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.widget.TextView;
 
 import com.taoweiji.aptpreferences.preferences.SettingsPreferences;
-import com.thejoyrun.aptpreferences.R;
 import com.taoweiji.aptpreferences.preferences.Settings;
 
 import java.util.Date;
@@ -36,13 +35,13 @@ public class MainActivity extends Activity {
         loginUser.setPassword("password");
         settingsPreference.setLoginUser(loginUser);
         // 对象类型带 @AptField(preferences = true) 注解的保存，相当于把 push相关的放在一个分类
-        settingsPreference.getPush().setOpenPush(true);
+//        settingsPreference.getPush().setOpenPush(true);
 
 
         // 获取
         String useLanguage = settingsPreference.getUseLanguage();
         Settings.LoginUser loginUser1 = settingsPreference.getLoginUser();
-        boolean openPush = settingsPreference.getPush().isOpenPush();
+//        boolean openPush = settingsPreference.getPush().isOpenPush();
 
     }
 

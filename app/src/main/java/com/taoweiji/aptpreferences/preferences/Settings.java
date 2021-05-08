@@ -10,16 +10,13 @@ import java.io.Serializable;
  */
 @AptPreferences
 public class Settings {
-    @com.taoweiji.aptpreferences.AptField(commit = true, ignoreGroupId = true)
+    @AptField(commit = true, ignoreGroupId = true)
     private long lastOpenAppTimeMillis;
     // 使用commit提交，默认是使用apply提交
-    @com.taoweiji.aptpreferences.AptField(commit = true, ignoreGroupId = false)
+    @AptField(commit = true, ignoreGroupId = false)
     private String useLanguage;
-    // 使用preferences的方式保存
-    @com.taoweiji.aptpreferences.AptField(preferences = true, ignoreGroupId = false)
-    private Push push;
     // 使用对象的方式保存
-    @com.taoweiji.aptpreferences.AptField(preferences = true, ignoreGroupId = false)
+    @AptField(preferences = true, ignoreGroupId = false)
     private LoginUser loginUser;
     // 不持久化该字段，仅仅保留在内存
     @AptField(save = false)
@@ -47,12 +44,6 @@ public class Settings {
     }
     public void setUseLanguage(String useLanguage) {
         this.useLanguage = useLanguage;
-    }
-    public Push getPush() {
-        return push;
-    }
-    public void setPush(Push push) {
-        this.push = push;
     }
     public static class Push {
         private boolean openPush;
