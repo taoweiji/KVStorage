@@ -69,27 +69,35 @@ dependencies {
 使用方法非常简单，先编写一个普通带getter、setter的javabean类，在类头部添加@AptPreferences即可：
 
 ```
-
 @AptPreferences
-public class Settings {
-   private long lastOpenAppTimeMillis;
-   // 使用commit提交，默认是使用apply提交，配置默认值
-   @AptField(commit = true)
-   private String useLanguage = "zh";
-   // 使用preferences的方式保存
-   @AptField(preferences = true)
-   private Push push;
-   // 使用对象的方式保存
-   private LoginUser loginUser;
-   // 不持久化该字段，仅仅保留在内存
-   @AptField(save = false)
-   private long lastActionTimeMillis;
+open class Settings {
+    @AptField(ignoreGroupId = true)
+    open var lastOpenAppTimeMillis = System.currentTimeMillis()
 
-    // ...
+    @AptField
+    open var useLanguage = "zh"
 
-    // get、set方法必须写
+    @AptField(ignoreGroupId = false)
+    open lateinit var push: Push
+
+    @AptField(ignoreGroupId = false)
+    open var loginUser: LoginUser? = null
+
+    @AptField(save = false)
+    open var lastActionTimeMillis: Long = 0
 }
 
+@AptPreferences
+open class Push {
+    var isOpenPush = false
+    var isVibrate = false
+    var isVoice = false
+}
+
+class LoginUser : Serializable {
+    var username: String = ""
+    var password: String = ""
+}
 ```
 
 
@@ -146,7 +154,7 @@ public class MyApplication extends Application{
 ### 五、根据不同的用户设置
 如果app支持多用户登录，需要根据不用的用户持久化，可以通过下面方法配置。再通过@AptField(global = false)，就可以针对某个字段跟随用户不同进行持久化。
 ```
-AptPreferencesManager.setUserInfo("uid");
+AptPreferencesManager.setGroupId("uid");
 ```
 
 ### 六、代码调用

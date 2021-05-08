@@ -6,7 +6,7 @@ android {
     compileSdkVersion 30
 
     defaultConfig {
-        applicationId "com.thejoyrun.app_kotlin"
+        applicationId "com.taoweiji.aptpreferences.example.kotlin"
         minSdkVersion 16
         targetSdkVersion 30
         versionCode 1
