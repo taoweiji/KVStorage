@@ -1,4 +1,4 @@
-[![Release](https://jitpack.io/v/joyrun/AptPreferences.svg)](https://jitpack.io/#joyrun/AptPreferences)
+[![Release](https://jitpack.io/v/taoweiji/AptPreferences.svg)](https://jitpack.io/#taoweiji/AptPreferences)
 
 AptPreferences是基于面向对象设计的快速持久化框架，目的是为了简化SharePreferences的使用，减少代码的编写。可以非常快速地保存基本类型和对象。AptPreferences是基于APT技术实现，在编译期间实现代码的生成，支持混淆。根据不同的用户区分持久化信息。
 
@@ -30,7 +30,7 @@ LoginUser loginUser = SettingsPreference.get().getLoginUser();
 ```
 从上面的简单例子可以看到，我们需要做SharePreferences持久化，仅仅定义一个简单的javabean类（Settings）并添加注解即可，这个框架会根据javabean生成带有持久化功能的SettingsPreference类，通过这个类就可以非常简单去保持或者获取数据，大大简化了SharePreferences的使用，也可以保持对象。
 ### 项目地址
-https://github.com/joyrun/AptPreferences
+https://github.com/taoweiji/AptPreferences
 ### 一、配置项目
 
 ##### 配置项目根目录 build.gradle
@@ -59,8 +59,8 @@ apply plugin: 'com.android.application'
 
 //...
 dependencies {
-    implementation 'com.github.joyrun.AptPreferences:aptpreferences:0.9.5'
-    annotationProcessor 'com.github.joyrun.AptPreferences:aptpreferences-compiler:0.9.5'
+    implementation 'com.github.taoweiji.AptPreferences:aptpreferences:0.9.5'
+    annotationProcessor 'com.github.taoweiji.AptPreferences:aptpreferences-compiler:0.9.5'
 }
 ```
 
@@ -401,7 +401,7 @@ public final class SettingsPreferences extends Settings {
 
 ## License
 
-    Copyright 2016 Joyrun, Inc.
+    Copyright 2016 Tao, Inc.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
