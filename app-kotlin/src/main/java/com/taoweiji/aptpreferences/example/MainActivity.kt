@@ -33,6 +33,7 @@ class MainActivity : Activity() {
         val useLanguage = settingsPreference.useLanguage
         val loginUser1 = settingsPreference.loginInfo
 //        val openPush = settingsPreference.push.isOpenPush
+        PushPreferences.get().openPush
 
     }
 

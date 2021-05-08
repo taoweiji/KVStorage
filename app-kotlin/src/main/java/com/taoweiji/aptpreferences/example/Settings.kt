@@ -13,20 +13,22 @@ open class Settings {
     @AptField(ignoreGroupId = true)
     open var lastOpenAppTimeMillis = System.currentTimeMillis()
 
-    @AptField
     open var useLanguage = "zh"
 
     @AptField(ignoreGroupId = false)
     open var loginInfo: LoginInfo? = null
 
+    @AptField(save = false)
     open var lastActionTimeMillis: Long = 0
 }
 
 @AptPreferences
 open class Push {
-    open var isOpenPush = false
-    open var isVibrate = false
-    open var isVoice = false
+    open var openPush = false
+
+    open var vibrate = false
+
+    open var voice = false
 }
 
 class LoginInfo : Serializable {

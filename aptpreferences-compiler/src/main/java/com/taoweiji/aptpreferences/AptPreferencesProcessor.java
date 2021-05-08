@@ -89,7 +89,8 @@ public class AptPreferencesProcessor extends AbstractProcessor {
                 }
                 // 检查是否有注解
                 AptField annotation = fieldElement.getAnnotation(AptField.class);
-                if (annotation == null) {
+
+                if (annotation != null && !annotation.save()) {
                     continue;
                 }
 
@@ -146,13 +147,13 @@ public class AptPreferencesProcessor extends AbstractProcessor {
                         modName = "putString";
                     }
                     // 检查preferences是否true，如果是true代表这个对象作为preferences来保存，否则以对象持久化
-                    if (annotation.preferences()) {
+                    if (annotation != null && annotation.preferences()) {
                         inClassElements.add(fieldElement);
                         continue;
                     }
                     isObject = true;
                 }
-                boolean ignoreGroupId = annotation.ignoreGroupId();
+                boolean ignoreGroupId = annotation != null && annotation.ignoreGroupId();
 
 
                 if (name.startsWith("set")) {
@@ -166,7 +167,7 @@ public class AptPreferencesProcessor extends AbstractProcessor {
                     }
 
                     MethodSpec setMethod;
-                    if (annotation.commit()) {
+                    if (annotation != null && annotation.commit()) {
                         if (isDouble) {
                             setMethod = MethodSpec.overriding(executableElement)
                                     .addStatement(String.format("mEdit.%s(getRealKey(\"%s\",%b), (float)%s).commit()", modName, fieldName, ignoreGroupId, parameterName)).build();

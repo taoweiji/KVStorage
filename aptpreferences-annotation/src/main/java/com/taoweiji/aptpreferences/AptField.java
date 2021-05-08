@@ -20,4 +20,6 @@ public @interface AptField {
     boolean ignoreGroupId() default false;
 
     boolean preferences() default false;
+
+    boolean save() default true;
 }
