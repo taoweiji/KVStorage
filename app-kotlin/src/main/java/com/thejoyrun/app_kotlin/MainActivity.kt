@@ -4,7 +4,6 @@ import android.app.Activity
 import android.os.Bundle
 import com.thejoyrun.app_kotlin.preferences.Settings
 import com.thejoyrun.app_kotlin.preferences.SettingsPreferences
-import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
 class MainActivity : Activity() {
@@ -19,7 +18,7 @@ class MainActivity : Activity() {
         stringBuilder.append("last value firstUse: ").append(settingsPreference.useLanguage).append('\n')
         settingsPreference.useLanguage = Date().toString()
 
-        text_view.text = stringBuilder.toString()
+//        text_view.text = stringBuilder.toString()
         // 普通类型保存
         settingsPreference.useLanguage = "zh"
         settingsPreference.lastOpenAppTimeMillis = System.currentTimeMillis()
