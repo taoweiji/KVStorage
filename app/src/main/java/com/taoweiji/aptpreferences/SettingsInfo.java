@@ -12,12 +12,12 @@ public class SettingsInfo {
     private boolean login;
     private float price2;
     private double price;
-    @AptField(save = false)
+    @AptField(ignore = false)
     private float tmp;
     private static float tmpStatic;
 
-    @AptField(preferences = true, ignoreGroupId = false)
-    private Run run;
+//    @AptField(preferences = true, ignoreGroupId = false)
+//    private Run run;
     @AptField(ignoreGroupId = false)
     private LoginUser loginUser;
 
@@ -37,13 +37,13 @@ public class SettingsInfo {
         this.tmp = tmp;
     }
 
-    public Run getRun() {
-        return run;
-    }
-
-    public void setRun(Run run) {
-        this.run = run;
-    }
+//    public Run getRun() {
+//        return run;
+//    }
+//
+//    public void setRun(Run run) {
+//        this.run = run;
+//    }
 
     public String getFirstUse() {
         return firstUse;

@@ -16,10 +16,10 @@ public class Settings {
     @AptField(commit = true, ignoreGroupId = false)
     private String useLanguage;
     // 使用对象的方式保存
-    @AptField(preferences = true, ignoreGroupId = false)
+    @AptField(ignoreGroupId = false)
     private LoginUser loginUser;
     // 不持久化该字段，仅仅保留在内存
-    @AptField(save = false)
+    @AptField(ignore = false)
     private long lastActionTimeMillis;
     public long getLastActionTimeMillis() {
         return lastActionTimeMillis;

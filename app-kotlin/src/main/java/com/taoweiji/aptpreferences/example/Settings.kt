@@ -18,7 +18,7 @@ open class Settings {
     @AptField(ignoreGroupId = false)
     open var loginInfo: LoginInfo? = null
 
-    @AptField(save = false)
+    @AptField(ignore = false)
     open var lastActionTimeMillis: Long = 0
 }
 

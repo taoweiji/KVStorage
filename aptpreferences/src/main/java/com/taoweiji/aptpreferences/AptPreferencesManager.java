@@ -2,6 +2,8 @@ package com.taoweiji.aptpreferences;
 
 import android.content.Context;
 
+import androidx.annotation.Keep;
+
 public final class AptPreferencesManager {
     private static Context sContext;
 
@@ -22,16 +24,6 @@ public final class AptPreferencesManager {
         return sAptParser;
     }
 
-    @Deprecated
-    public static void setUserInfo(String userInfo) {
-        setGroupId(userInfo);
-    }
-
-    @Deprecated
-    public static String getUserInfo() {
-        return getGroupId();
-    }
-
     /**
      * 用于实现不同登录的用户使用不同的存储，避免混淆
      */
@@ -39,6 +31,7 @@ public final class AptPreferencesManager {
         sGroupId = groupId;
     }
 
+    @Keep
     public static String getGroupId() {
         return sGroupId;
     }

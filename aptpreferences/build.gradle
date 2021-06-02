@@ -22,5 +22,6 @@ dependencies {
     api fileTree(include: ['*.jar'], dir: 'libs')
     api project(':aptpreferences-annotation')
     testImplementation 'junit:junit:4.13.2'
+    implementation 'androidx.annotation:annotation:1.0.0'
 }
 apply from: '../maven_public.gradle'

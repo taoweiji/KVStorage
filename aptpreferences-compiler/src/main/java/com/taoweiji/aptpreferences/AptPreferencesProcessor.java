@@ -11,7 +11,6 @@ import com.squareup.javapoet.TypeSpec;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -51,7 +50,7 @@ public class AptPreferencesProcessor extends AbstractProcessor {
             // 获取该类的全部成员，包括
             List<? extends Element> members = elementUtils.getAllMembers(typeElement);
             List<MethodSpec> methodSpecs = new ArrayList<>();
-            Set<Element> inClassElements = new HashSet<>();
+//            Set<Element> inClassElements = new HashSet<>();
             for (Element item : members) {
                 // 忽略除了成员方法外的元素
                 if (!(item instanceof ExecutableElement)) {
@@ -90,7 +89,7 @@ public class AptPreferencesProcessor extends AbstractProcessor {
                 // 检查是否有注解
                 AptField annotation = fieldElement.getAnnotation(AptField.class);
 
-                if (annotation != null && !annotation.save()) {
+                if (annotation != null && !annotation.ignore()) {
                     continue;
                 }
 
@@ -147,10 +146,10 @@ public class AptPreferencesProcessor extends AbstractProcessor {
                         modName = "putString";
                     }
                     // 检查preferences是否true，如果是true代表这个对象作为preferences来保存，否则以对象持久化
-                    if (annotation != null && annotation.preferences()) {
-                        inClassElements.add(fieldElement);
-                        continue;
-                    }
+//                    if (annotation != null && annotation.preferences()) {
+//                        inClassElements.add(fieldElement);
+//                        continue;
+//                    }
                     isObject = true;
                 }
                 boolean ignoreGroupId = annotation != null && annotation.ignoreGroupId();
@@ -247,7 +246,7 @@ public class AptPreferencesProcessor extends AbstractProcessor {
                     .returns(String.class)
                     .addParameter(String.class, "key")
                     .addParameter(TypeName.BOOLEAN, "global")
-                    .addStatement("return global ? key : AptPreferencesManager.getUserInfo() + key")
+                    .addStatement("return global ? key : AptPreferencesManager.getGroupId() + key")
                     .build();
 //            List<TypeSpec> typeSpecs = new ArrayList<>();
 //            try {

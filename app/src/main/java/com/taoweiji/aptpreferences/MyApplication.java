@@ -24,6 +24,6 @@ public class MyApplication extends Application{
                 return JSON.toJSONString(object);
             }
         });
-        AptPreferencesManager.setUserInfo("123456");
+        AptPreferencesManager.setGroupId("123456");
     }
 }

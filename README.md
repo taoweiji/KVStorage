@@ -37,18 +37,16 @@ https://github.com/taoweiji/AptPreferences
 ```
 buildscript {
     repositories {
-        jcenter()
+        mavenCentral()
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:3.1.0"
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }
 }
 
 allprojects {
     repositories {
-        jcenter()
-        maven { url "https://jitpack.io" }
+        mavenCentral()
     }
 }
 ```
@@ -59,8 +57,8 @@ apply plugin: 'com.android.application'
 
 //...
 dependencies {
-    implementation 'com.github.taoweiji.AptPreferences:aptpreferences:0.9.5'
-    annotationProcessor 'com.github.taoweiji.AptPreferences:aptpreferences-compiler:0.9.5'
+    implementation 'io.github.taoweiji:aptpreferences:1.2.0'
+    annotationProcessor 'io.github.taoweiji:aptpreferences-compiler:1.2.0'
 }
 ```
 
@@ -78,20 +76,10 @@ open class Settings {
     open var useLanguage = "zh"
 
     @AptField(ignoreGroupId = false)
-    open lateinit var push: Push
-
-    @AptField(ignoreGroupId = false)
     open var loginUser: LoginUser? = null
 
-    @AptField(save = false)
+    @AptField(ignore = true)
     open var lastActionTimeMillis: Long = 0
-}
-
-@AptPreferences
-open class Push {
-    var isOpenPush = false
-    var isVibrate = false
-    var isVoice = false
 }
 
 class LoginUser : Serializable {
@@ -104,7 +92,7 @@ class LoginUser : Serializable {
 
 ### 三、注解及使用说明
 
-我们提供了两个注解@AptPreferences和@AptField(commit = false,save = true,preferences = false)。
+我们提供了两个注解@AptPreferences和@AptField(commit = false,ignore = false,ignoreGroupId = false)。
 
 ###### @AptPreferences
 
@@ -116,10 +104,9 @@ AptField有三个参数可以配置。
 
 1. commit：可以配置使用commit还是apply持久化，默认是apply，需要在一些需要立刻保存到文件的可以使用commit方式，比如在退出APP时保存退出的时间。
 
-2. save：用来声明是否需要持久化这个字段。
+2. ignore：用来声明是否需要持久化这个字段，如果是false就不保存。
 
-3. preferences：这个属性仅仅适用于对象类型的字段，用来声明这个是以对象的方式保存，还是以preferences的方式保存。如果是true，就可以通过settingsPreference.getPush().isOpenPush()的方式存取。
-4. global：默认是true，如果设置为false时，和AptPreferencesManager.setUserInfo()配合，可以为不同的用户进行持久化，达到每个用户有不用的设置。
+3. ignoreGroupId：如果是true，那么该字段就会忽略GroupId，可以用于实现多用户登录的场景，部分字段需要区分用户发、设置为false；部分字段无需区分用户，是全局参数，那么就是true
 
 
 ### 四、初始化
@@ -169,14 +156,10 @@ Settings.LoginUser loginUser = new Settings.LoginUser();
 loginUser.setUsername("username");
 loginUser.setPassword("password");
 SettingsPreferences.get().setLoginUser(loginUser);
-// 对象类型带 @AptField(preferences = true) 注解的保存，相当于把 push相关的放在一个分类
-SettingsPreferences.get().getPush().setOpenPush(true);
-
 
 // 获取
 String useLanguage = settingsPreference.getUseLanguage();
 Settings.LoginUser loginUser1 = settingsPreference.getLoginUser();
-boolean openPush = settingsPreference.getPush().isOpenPush();
 ```
 
 ### 七、默认值
@@ -209,200 +192,6 @@ public class Settings {
 ```
 
 
-
-### 八、详细转换代码
-
-```
-
-@AptPreferences
-public class Settings {
-   private long lastOpenAppTimeMillis;
-   // 使用commit提交，默认是使用apply提交，配置默认值
-   @AptField(commit = true)
-   private String useLanguage = "zh";
-   // 使用preferences的方式保存
-   @AptField(preferences = true)
-   private Push push;
-   // 使用对象的方式保存
-   private LoginUser loginUser;
-   // 不持久化该字段，仅仅保留在内存
-   @AptField(save = false)
-   private long lastActionTimeMillis;
-   public long getLastActionTimeMillis() {
-       return lastActionTimeMillis;
-   }
-   public void setLastActionTimeMillis(long lastActionTimeMillis) {
-       this.lastActionTimeMillis = lastActionTimeMillis;
-   }
-   public LoginUser getLoginUser() {
-       return loginUser;
-   }
-   public void setLoginUser(LoginUser loginUser) {
-       this.loginUser = loginUser;
-   }
-   public long getLastOpenAppTimeMillis() {
-       return lastOpenAppTimeMillis;
-   }
-   public void setLastOpenAppTimeMillis(long lastOpenAppTimeMillis) {
-       this.lastOpenAppTimeMillis = lastOpenAppTimeMillis;
-   }
-   public String getUseLanguage() {
-       return useLanguage;
-   }
-   public void setUseLanguage(String useLanguage) {
-       this.useLanguage = useLanguage;
-   }
-   public Push getPush() {
-       return push;
-   }
-   public void setPush(Push push) {
-       this.push = push;
-   }
-   public static class Push {
-       private boolean openPush;
-       private boolean vibrate;
-       private boolean voice;
-       public boolean isOpenPush() {
-           return openPush;
-       }
-       public void setOpenPush(boolean openPush) {
-           this.openPush = openPush;
-       }
-       public boolean isVibrate() {
-           return vibrate;
-       }
-       public void setVibrate(boolean vibrate) {
-           this.vibrate = vibrate;
-       }
-       public boolean isVoice() {
-           return voice;
-       }
-       public void setVoice(boolean voice) {
-           this.voice = voice;
-       }
-   }
-   public static class LoginUser implements Serializable{
-       public String username;
-       public String password;
-       public String getUsername() {
-           return username;
-       }
-       public void setUsername(String username) {
-           this.username = username;
-       }
-       public String getPassword() {
-           return password;
-       }
-       public void setPassword(String password) {
-           this.password = password;
-       }
-   }
-}
-
-```
-
-实际上就是根据上面的代码自动生成带有持久化的代码，可以在这里可以找到
-
-> app/build/generated/source/apt/debug
-
-```
-
-public final class SettingsPreferences extends Settings {
-   public static final Map<String, SettingsPreferences> sMap = new java.util.HashMap<>();
-   private final SharedPreferences.Editor mEdit;
-   private final SharedPreferences mPreferences;
-   private final String mName;
-   public SettingsPreferences(String name) {
-       mPreferences = AptPreferencesManager.getContext().getSharedPreferences("Settings_" + name, 0);
-       mEdit = mPreferences.edit();
-       this.mName = name;
-       this.setPush(new PushPreferences());
-   }
-   @Override
-   public Settings.LoginUser getLoginUser() {
-       String text = mPreferences.getString("loginUser", null);
-       Object object = null;
-       if (text != null) {
-           object = AptPreferencesManager.getAptParser().deserialize(com.thejoyrun.aptpreferences.Settings.LoginUser.class, text);
-       }
-       if (object != null) {
-           return (com.thejoyrun.aptpreferences.Settings.LoginUser) object;
-       }
-       return super.getLoginUser();
-   }
-   @Override
-   public void setLoginUser(Settings.LoginUser loginUser) {
-       mEdit.putString("loginUser", AptPreferencesManager.getAptParser().serialize(loginUser)).apply();
-   }
-   @Override
-   public long getLastOpenAppTimeMillis() {
-       return mPreferences.getLong("lastOpenAppTimeMillis", super.getLastOpenAppTimeMillis());
-   }
-   @Override
-   public void setLastOpenAppTimeMillis(long lastOpenAppTimeMillis) {
-       mEdit.putLong("lastOpenAppTimeMillis", lastOpenAppTimeMillis).apply();
-   }
-   @Override
-   public String getUseLanguage() {
-       return mPreferences.getString("useLanguage", super.getUseLanguage());
-   }
-   @Override
-   public void setUseLanguage(String useLanguage) {
-       mEdit.putString("useLanguage", useLanguage).commit();
-   }
-   public static SettingsPreferences get(String name) {
-       if (sMap.containsKey(name)) {
-           return sMap.get(name);
-       }
-       synchronized (sMap) {
-           if (!sMap.containsKey(name)) {
-               SettingsPreferences preferences = new SettingsPreferences(name);
-               sMap.put(name, preferences);
-           }
-       }
-       return sMap.get(name);
-   }
-   public static SettingsPreferences get() {
-       return get("");
-   }
-   public void clear() {
-       mEdit.clear().commit();
-       sMap.remove(mName);
-   }
-   public static void clearAll() {
-       java.util.Set<String> keys = sMap.keySet();
-       for (String key : keys) {
-           sMap.get(key).clear();
-       }
-   }
-   private class PushPreferences extends Settings.Push {
-       @Override
-       public boolean isOpenPush() {
-           return mPreferences.getBoolean("Push.openPush", super.isOpenPush());
-       }
-       @Override
-       public void setOpenPush(boolean openPush) {
-           mEdit.putBoolean("Push.openPush", openPush).apply();
-       }
-       @Override
-       public boolean isVibrate() {
-           return mPreferences.getBoolean("Push.vibrate", super.isVibrate());
-       }
-       @Override
-       public void setVibrate(boolean vibrate) {
-           mEdit.putBoolean("Push.vibrate", vibrate).apply();
-       }
-       @Override
-       public boolean isVoice() {
-           return mPreferences.getBoolean("Push.voice", super.isVoice());
-       }
-       @Override
-       public void setVoice(boolean voice) {
-           mEdit.putBoolean("Push.voice", voice).apply();
-       }
-   }
-}
-```
 
 
 
