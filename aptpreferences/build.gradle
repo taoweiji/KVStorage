@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 android {
@@ -24,3 +23,4 @@ dependencies {
     api project(':aptpreferences-annotation')
     testImplementation 'junit:junit:4.13.2'
 }
+apply from: '../maven_public.gradle'

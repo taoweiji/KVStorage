@@ -30,8 +30,5 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     implementation 'com.alibaba:fastjson:1.1.45.android'
     implementation project(':aptpreferences')
-
     kapt project(':aptpreferences-compiler')
-
-
 }

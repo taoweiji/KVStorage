@@ -1,5 +1,4 @@
 apply plugin: 'java'
-apply plugin: 'com.github.dcendents.android-maven'
 sourceCompatibility = 1.8 //必须规定jdk版本,不然会编译错误 PARSE ERROR: unsupported class file version 52.0
 targetCompatibility = 1.8 //必须规定jdk版本,不然会编译错误 PARSE ERROR: unsupported class file version 52.0
 dependencies {
