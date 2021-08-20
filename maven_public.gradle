@@ -1,5 +1,6 @@
 group = GROUP_ID
 version = VERSION_NAME
+return
 apply plugin: 'maven'
 apply plugin: 'signing'
 signing {
@@ -33,6 +34,14 @@ if (isAndroid) {
         archives javadocJar, sourcesJar
     }
 }
+
+signing {
+//    keyId = "0945148C"
+//    password = "Tao408191243."
+//    secretKeyRingFile = "/Users/wiki/.gnupg/secring.gpg"
+}
+
+
 uploadArchives {
     repositories {
         mavenDeployer {

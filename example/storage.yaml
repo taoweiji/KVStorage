@@ -1,0 +1,16 @@
+
+shipping_address(list<string>): #收货地址
+public_drafts(list): #发布草稿箱
+local_collect(list): #
+
+
+browsing_history(list<object>): #浏览记录
+teenager_mode(bool): false #是否开启青少年模式
+current_user_tags(list<string>): #当前用户标签
+
+global:
+    open_app_num_of_times(int): 0 #打开APP的次数
+    last_open_app_time(long): 0 #上次打开app时间，13位
+
+
+# https://www.bejson.com/validators/yaml_editor/

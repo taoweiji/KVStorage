@@ -1,6 +1,0 @@
-apply plugin: 'java'
-sourceCompatibility = 1.8 //必须规定jdk版本,不然会编译错误 PARSE ERROR: unsupported class file version 52.0
-targetCompatibility = 1.8 //必须规定jdk版本,不然会编译错误 PARSE ERROR: unsupported class file version 52.0
-dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-}

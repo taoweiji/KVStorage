@@ -1,194 +1,178 @@
-[![Release](https://jitpack.io/v/taoweiji/AptPreferences.svg)](https://jitpack.io/#taoweiji/AptPreferences)
+# 强大的 Android 键值对存储框架，基于 yaml 生成 java 存储对象类
 
-AptPreferences是基于面向对象设计的快速持久化框架，目的是为了简化SharePreferences的使用，减少代码的编写。可以非常快速地保存基本类型和对象。AptPreferences是基于APT技术实现，在编译期间实现代码的生成，支持混淆。根据不同的用户区分持久化信息。
+ [![Maven Central](https://img.shields.io/maven-central/v/io.github.taoweiji.kvstorage/kvstorage)](https://search.maven.org/search?q=io.github.taoweiji.kvstorage)
 
-### 特点
-1. 把通过的Javabean变成SharedPreferences操作类
-2. 支持保存基本类型及对象
-3. 支持根据不同的用户区分持久化信息。
 
-### 简单例子
-##### 定义javabean类
-```
-@AptPreferences
-public class Settings {
-   private long loginTime;
-   private LoginUser loginUser;
-    // get、set方法
-}
-```
-##### 使用方式
-```
-//初始化
-AptPreferencesManager.init(this, null);
-// 保存信息
-SettingsPreference.get().setLoginTime(System.currentTimeMillis());
-SettingsPreference.get().set(new LoginUser("Wiki"));
-// 获取信息
-long loginTime = SettingsPreference.get().getLoginTime();
-LoginUser loginUser = SettingsPreference.get().getLoginUser();
-```
-从上面的简单例子可以看到，我们需要做SharePreferences持久化，仅仅定义一个简单的javabean类（Settings）并添加注解即可，这个框架会根据javabean生成带有持久化功能的SettingsPreference类，通过这个类就可以非常简单去保持或者获取数据，大大简化了SharePreferences的使用，也可以保持对象。
-### 项目地址
-https://github.com/taoweiji/AptPreferences
-### 一、配置项目
+使用 yaml 配置文件声明键值对的字段名、类型、默认值、是否加密、分组等，通过 Gradle 插件自动生成对象类，让键值对存储的使用变成get/set形式，让代码调用更加安全、优雅。
 
-##### 配置项目根目录 build.gradle
+- 支持对字段单独加密，避免敏感信息明文存储。
+- 通过 yaml 配置存储字段信息，配置简单易懂，一目了然；
+- 支持基本类型、对象和列表数据，代替SharePreference及部分SQLite场景。
+- 支持自定义文件名，实现多用户之间的数据隔离。
+
+#### 推荐规范
+
+- 推荐只使用一个yaml配置文件，放在公共 module 内，方便组件化开发调用；
+- 推荐不同的业务划分不同的分组，避免所有的配置都写在一个组内；
+- 编写yaml时，所有的字段都应该编写注释，说明其用法；
+- bool类型数据不用增加is_前缀，bool类型会默认生成 setXX / isXX 方法；
+
+### 编写 yaml 配置文件
+
+在公共 module（或 app）目录下创建 yaml 配置文件，比如 storage.yaml 会生成 Storage.java，不同文件名存储数据是隔离的，一旦定好后不建议修改。一个项目无论有多少个 module，都推荐使用一个 yaml 配置文件，放在公共的module里面。
+
+```yaml
+account:
+    login_account(object,encrypt): #用户登录信息
+    login_time(long): 0 #上次登录时间
+    login_type(string): null #登录方式：qq、weixin、weibo、phone
+browsing_history(list<object>): #浏览记录
+teenager_mode(bool): false #是否开启青少年模式
+current_user_tags(list<string>): #当前用户标签
+global:
+  open_app_num_of_times(int): 0 #打开APP的次数
+  last_open_app_time(long): 0 #上次打开app时间，13位
 ```
+
+- 配置文件仅允许使用小写字母、数字、下划线，字段必须使用字母开头。
+- 带有括号 `()`是字段，否则就是分组。如上，account 是分组，而login_account、login_time是字段。
+- 字段必须在括号`()`内填写类型，仅支持`int`、`long`、`float`、`bool`、`string`、`object`、`list<int>`、`list<long>`、`list<float>`、`list<bool>`、`list<string>`、`list<object>`。
+- 如果字段需要加密，就需要在括号内填写 `encrypt`，如(object,encrypt)、(int,encrypt)。
+
+### 配置 Gradle
+
+修改项目根目录的 build.gradle
+
+```groovy
 buildscript {
     repositories {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
-    }
-}
-
-allprojects {
-    repositories {
-        mavenCentral()
+        classpath 'io.github.taoweiji.kvstorage:kvstorage-gradle-plugin:+'
     }
 }
 ```
-##### 配置app build.gradle
-```
-apply plugin: 'com.android.application'
 
+修改公共 module（或 app）的  build.gradle
 
-//...
+```groovy
+apply plugin: 'kvstorage'
 dependencies {
-    implementation 'io.github.taoweiji:aptpreferences:1.2.0'
-    annotationProcessor 'io.github.taoweiji:aptpreferences-compiler:1.2.0'
+    implementation 'io.github.taoweiji.kvstorage:kvstorage:+'
+}
+kvstorage {
+    yamlFiles = "storage.yaml" // 配置文件，多个配置文件用","分割
+    packageName = "com.taoweiji.kvstorage.example" // 生成代码的包名
+    outputDir = "src/main/java" // 代码生成的目录
 }
 ```
 
-### 二、定义持久化Javabean
+点击 Gradle sync 即可生成对应的类。
 
-使用方法非常简单，先编写一个普通带getter、setter的javabean类，在类头部添加@AptPreferences即可：
+### 使用
 
-```
-@AptPreferences
-open class Settings {
-    @AptField(ignoreGroupId = true)
-    open var lastOpenAppTimeMillis = System.currentTimeMillis()
+```kotlin
+// 在Application进行初始化
+KVStorage.init(this)
 
-    @AptField
-    open var useLanguage = "zh"
+// 对象操作
+Storage.get().account.loginAccount.setObject(Account(1, "Wiki"))
+val account = Storage.get().account.loginAccount.convert(Account::class.java)
+Storage.get().account.loginAccount.set("gender", 1)
+val name = Storage.get().account.loginAccount.getString("name", "")
+Log.e("KVStorage", "登录用户信息：" + Storage.get().account.loginAccount.data)
 
-    @AptField(ignoreGroupId = false)
-    open var loginUser: LoginUser? = null
+val lastLoginTime = Storage.get().account.loginTime
+Storage.get().account.loginTime = System.currentTimeMillis()
 
-    @AptField(ignore = true)
-    open var lastActionTimeMillis: Long = 0
+Storage.get().global.openAppNumOfTimes++
+Log.e("KVStorage", "打开APP次数：${Storage.get().global.openAppNumOfTimes}")
+
+if (Storage.get().isTeenagerMode) {
+    Log.e("KVStorage", "是否开启青少年模式：" + Storage.get().isTeenagerMode)
 }
+Storage.get().isTeenagerMode = true
 
-class LoginUser : Serializable {
-    var username: String = ""
-    var password: String = ""
-}
+// 列表操作
+Storage.get().currentUserTags.add("可爱")
+Storage.get().currentUserTags.add("好看")
+Log.e("KVStorage", "当用户标签：" + JSON.toJSONString(Storage.get().currentUserTags.data))
 ```
 
 
 
-### 三、注解及使用说明
+## 高级用法
 
-我们提供了两个注解@AptPreferences和@AptField(commit = false,ignore = false,ignoreGroupId = false)。
+### 自定义文件名，实现多用户隔离
 
-###### @AptPreferences
+如果账号支持多用户登录，或者切换账号的时候需要保留上一个账号的信息，可以通过自定义存储的文件名称实现区分。
 
-被注解的javabean必须为字段实现setter和getter方法；
-
-###### @AptField
-
-AptField有三个参数可以配置。
-
-1. commit：可以配置使用commit还是apply持久化，默认是apply，需要在一些需要立刻保存到文件的可以使用commit方式，比如在退出APP时保存退出的时间。
-
-2. ignore：用来声明是否需要持久化这个字段，如果是false就不保存。
-
-3. ignoreGroupId：如果是true，那么该字段就会忽略GroupId，可以用于实现多用户登录的场景，部分字段需要区分用户发、设置为false；部分字段无需区分用户，是全局参数，那么就是true
-
-
-### 四、初始化
-
-使用之前要进行初始化，建议在Application进行初始化，需要需要保存对象，还需要实现对象的解析器，这里使用Fastjson作为实例：
-
-```
-
-public class MyApplication extends Application{
-   @Override
-   public void onCreate() {
-       super.onCreate();
-       AptPreferencesManager.init(this, new AptParser() {
-           @Override
-           public Object deserialize(Class clazz, String text) {
-               return JSON.parseObject(text,clazz);
-           }
-           @Override
-           public String serialize(Object object) {
-               return JSON.toJSONString(object);
-           }
-       });
-   }
-}
-
+```java
+KVStorage.init(this, new KVStorage.Interceptor() {
+    @Override
+    public String customFileName(@NonNull String name) {
+        // 设置 storage.global 全局生效，不对用户隔离
+        if (name.equals("storage.global")) {
+            return name;
+        }
+        // 默认所有配置都进行用户隔离
+        String userId = "1234";
+        return userId + "_" + name;
+    }
+});
 ```
 
 
 
+### 自定义对象序列化、反序列化
 
+默认使用 FastJson 作为序列化库，开发者可以自定义序列化库，下面是gson的示例。
 
-### 五、根据不同的用户设置
-如果app支持多用户登录，需要根据不用的用户持久化，可以通过下面方法配置。再通过@AptField(global = false)，就可以针对某个字段跟随用户不同进行持久化。
-```
-AptPreferencesManager.setGroupId("uid");
-```
+```java
+KVStorage.init(this, new KVStorage.Interceptor() {
+    @Override
+    public String toJSONString(@NonNull Object object) {
+        return new Gson().toJson(object);
+    }
 
-### 六、代码调用
+    @Override
+    public <T> List<T> parseArray(@NonNull String text, Class<T> clazz) {
+        Type userListType = new TypeToken<ArrayList<T>>() {}.getType();
+        return new Gson().fromJson(text, userListType);
+    }
 
-```
-
-// 普通类型保存
-SettingsPreferences.get().setUseLanguage("zh");
-SettingsPreferences.get().setLastOpenAppTimeMillis(System.currentTimeMillis());
-// 对象类型保存
-Settings.LoginUser loginUser = new Settings.LoginUser();
-loginUser.setUsername("username");
-loginUser.setPassword("password");
-SettingsPreferences.get().setLoginUser(loginUser);
-
-// 获取
-String useLanguage = settingsPreference.getUseLanguage();
-Settings.LoginUser loginUser1 = settingsPreference.getLoginUser();
+    @Override
+    public <T> T parseObject(@NonNull String text, Class<T> clazz) {
+        return new Gson().fromJson(text, clazz);
+    }
+});
 ```
 
-### 七、默认值
 
-很多时候我们需要在没有获取到值时使用默认值，SharedPreferences本身也是具备默认值的，所以我们也是支持默认值配置。分析生成的代码可以看到：
 
+### 自定义加密/解密算法
+
+```yaml
+login_account(object,encrypt): #登录信息，加密
 ```
 
-@Override
-public long getLastOpenAppTimeMillis() {
-   return mPreferences.getLong("lastOpenAppTimeMillis", super.getLastOpenAppTimeMillis());
-}
+通过 `encrypt` 可以对字段进行单独的加密，避免敏感信息明文存储在文件当中，比如密码、手机号码等。框架默认使用 base64作为简单处理，避免明文存储。但是base64并不是一个加密算法，如果需要对字段加密需要自己实现相关接口，推荐官方的 [KeyStore](https://developer.android.google.cn/training/articles/keystore.html)。
 
-```
+```java
+KVStorage.init(this, new KVStorage.Interceptor() {
+    @Override
+    public String decryption(@NonNull String data) {
+      	// TODO 解密
+        // return new String(Base64.decode(data, Base64.DEFAULT));
+    }
 
-如果没有获取到值，会调用父类的方法，那么就可以通过这个方式配置默认值：
-
-```
-
-@AptPreferences
-public class Settings {
-   // 使用commit提交，默认是使用apply提交，配置默认值
-   @AptField(commit = true)
-   private String useLanguage = "zh";
-
-   // ...
-
-}
-
+    @Override
+    public String encryption(@NonNull String data) {
+      	// TODO 加密
+        // return Base64.encodeToString(data.getBytes(), Base64.DEFAULT);
+    }
+});
 ```
 
 
@@ -198,16 +182,17 @@ public class Settings {
 
 ## License
 
-    Copyright 2016 Tao, Inc.
-
+    Copyright 2021 taoweiji.
+    
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
-
+    
        http://www.apache.org/licenses/LICENSE-2.0
-
+    
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+

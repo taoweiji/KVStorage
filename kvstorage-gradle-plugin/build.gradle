@@ -1,0 +1,33 @@
+apply plugin: 'groovy'
+apply plugin: 'maven'
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+dependencies {
+    testImplementation 'junit:junit:4.12'
+    implementation 'com.alibaba:fastjson:1.1.54.android'
+    implementation 'org.yaml:snakeyaml:1.17'
+    implementation 'com.squareup:javapoet:1.11.1'
+    implementation 'androidx.annotation:annotation:1.2.0'
+    implementation 'com.android.tools.build:gradle:2.3.3'
+    implementation gradleApi()
+    implementation localGroovy()
+}
+repositories {
+    jcenter()
+    google()
+    mavenCentral()
+}
+
+
+// 发布到本地仓库，方便测试
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: uri('../repo'))
+        }
+    }
+}
+
+apply from: '../maven_public.gradle'
