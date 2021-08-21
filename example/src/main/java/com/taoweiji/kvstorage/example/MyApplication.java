@@ -8,6 +8,9 @@ import androidx.annotation.NonNull;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.taoweiji.kvstorage.KVStorage;
+import com.taoweiji.kvstorage.PreferencesAdapter;
+import com.taoweiji.kvstorage.mmkv.MMKVPreferencesAdapter;
+import com.tencent.mmkv.MMKV;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -18,6 +21,7 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        MMKV.initialize(this);
         KVStorage.init(this, new KVStorage.Interceptor() {
             @NonNull
             @Override
@@ -37,6 +41,12 @@ public class MyApplication extends Application {
             public String encryption(@NonNull String data) {
                 return Base64.encodeToString(data.getBytes(), Base64.DEFAULT);
             }
+
+            @Override
+            public PreferencesAdapter createPreferencesAdapter(String fileName) {
+                return new MMKVPreferencesAdapter(fileName);
+            }
         });
+
     }
 }

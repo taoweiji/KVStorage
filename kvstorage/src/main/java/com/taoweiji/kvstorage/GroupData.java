@@ -1,12 +1,10 @@
 package com.taoweiji.kvstorage;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.Log;
 import android.util.LruCache;
 
 public class GroupData {
-    private final SharedPreferences preferences;
+    private final PreferencesAdapter preferences;
     final String name;
     private final LruCache<String, Metadata> children = new LruCache<>(100);
     private final LruCache<String, ListMetadata> listMetadataLruCache = new LruCache<>(100);
@@ -16,7 +14,7 @@ public class GroupData {
     GroupData(String name,String fileName) {
         this.name = name;
         this.fileName = fileName;
-        preferences = KVStorage.getContext().getSharedPreferences(fileName, Context.MODE_PRIVATE);
+        preferences = KVStorage.createPreferencesAdapter(fileName);
     }
 
     protected Metadata get(String key, boolean encrypt) {
@@ -48,6 +46,6 @@ public class GroupData {
 
     public void clear() {
         Log.e("KVStorage", name + " clear");
-        preferences.edit().clear().apply();
+        preferences.clear();
     }
 }

@@ -1,22 +1,21 @@
 package com.taoweiji.kvstorage;
 
-import android.content.SharedPreferences;
 import android.text.TextUtils;
 
 public class EncryptMetadata extends Metadata {
 
-    protected EncryptMetadata(SharedPreferences preferences, String name) {
+    protected EncryptMetadata(PreferencesAdapter preferences, String name) {
         super(preferences, name, false);
     }
 
     private void setEncryptData(Object value) {
         if (value == null) {
-            preferences.edit().remove(name).apply();
+            preferences.remove(name);
             return;
         }
         String data = value.toString();
         String after = KVStorage.encryption(data);
-        preferences.edit().putString(name, after).apply();
+        preferences.putString(name, after);
     }
 
     private String getDecryption() {

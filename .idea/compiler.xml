@@ -8,6 +8,7 @@
       <module name="kv-storage.storage" target="11" />
       <module name="KVStorage.example" target="11" />
       <module name="KVStorage.kvstorage" target="11" />
+      <module name="KVStorage.kvstorage-mmkv" target="11" />
       <module name="Storage.app" target="11" />
       <module name="Storage.storage" target="11" />
     </bytecodeTargetLevel>

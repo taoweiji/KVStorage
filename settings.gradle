@@ -10,3 +10,4 @@ rootProject.name = "KVStorage"
 include ':example'
 include ':kvstorage-gradle-plugin'
 include ':kvstorage'
+include ':kvstorage-mmkv'

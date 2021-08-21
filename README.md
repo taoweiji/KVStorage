@@ -5,10 +5,11 @@
 
 使用 yaml 配置文件声明键值对的字段名、类型、默认值、是否加密、分组等，通过 Gradle 插件自动生成对象类，让键值对存储的使用变成get/set形式，让代码调用更加安全、优雅。
 
-- 支持对字段单独加密，避免敏感信息明文存储。
+- 支持对字段单独加密，避免敏感信息明文存储；
 - 通过 yaml 配置存储字段信息，配置简单易懂，一目了然；
-- 支持基本类型、对象和列表数据，代替SharePreference及部分SQLite场景。
-- 支持自定义文件名，实现多用户之间的数据隔离。
+- 支持基本类型、对象和列表数据，代替SharePreference及部分SQLite场景；
+- 支持自定义文件名，实现多用户之间的数据隔离；
+- 支持自定义底层存储，提供 [MMKV拓展](#使用-mmkv-作为存储底层) 支持。
 
 #### 推荐规范
 
@@ -176,6 +177,32 @@ KVStorage.init(this, new KVStorage.Interceptor() {
 ```
 
 
+
+### 使用 MMKV 作为存储底层
+
+默认是使用 SharedPreferences 作为存储底层，开发者可以自定义存储底层，比如使用 [MMKV](https://github.com/Tencent/MMKV) 作为底层存储，从而获取更高的性能。
+
+#### 引入 mmkv 拓展
+
+```groovy
+implementation 'io.github.taoweiji.kvstorage:kvstorage-mmkv:+'
+```
+
+#### 初始化
+
+```java
+MMKV.initialize(this);
+
+KVStorage.init(this, new KVStorage.Interceptor() {
+    @Override
+    public PreferencesAdapter createPreferencesAdapter(String fileName) {
+      	// 返回 mmkv 适配器
+        return new MMKVPreferencesAdapter(fileName);
+    }
+});
+```
+
+这样底层存储就会改成mmkv，其它用法没有任何差异。
 
 
 

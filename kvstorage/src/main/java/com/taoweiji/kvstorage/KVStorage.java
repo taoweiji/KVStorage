@@ -113,6 +113,10 @@ public class KVStorage {
         });
     }
 
+    static PreferencesAdapter createPreferencesAdapter(String fileName) {
+        return sInterceptor.createPreferencesAdapter(fileName);
+    }
+
 
     public interface Interceptor {
 
@@ -143,6 +147,10 @@ public class KVStorage {
 
         default String toJSONString(@NonNull Object object) {
             return JSON.toJSONString(object);
+        }
+
+        default PreferencesAdapter createPreferencesAdapter(String fileName) {
+            return new SharedPreferencesAdapter(fileName);
         }
     }
 }

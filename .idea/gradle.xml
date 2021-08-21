@@ -14,6 +14,7 @@
             <option value="$PROJECT_DIR$/example" />
             <option value="$PROJECT_DIR$/kvstorage" />
             <option value="$PROJECT_DIR$/kvstorage-gradle-plugin" />
+            <option value="$PROJECT_DIR$/kvstorage-mmkv" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

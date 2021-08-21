@@ -1,14 +1,12 @@
 package com.taoweiji.kvstorage;
 
-import android.content.SharedPreferences;
-
 public class Metadata {
     protected final String name;
     private final boolean encrypt;
-    protected final SharedPreferences preferences;
+    protected final PreferencesAdapter preferences;
     protected EncryptMetadata encryptMetadata;
 
-    protected Metadata(SharedPreferences preferences, String name, boolean encrypt) {
+    protected Metadata(PreferencesAdapter preferences, String name, boolean encrypt) {
         this.preferences = preferences;
         this.name = name;
         this.encrypt = encrypt;
@@ -22,7 +20,7 @@ public class Metadata {
             encryptMetadata.set(value);
             return;
         }
-        preferences.edit().putInt(name, value).apply();
+        preferences.putInt(name, value);
     }
 
     public void set(long value) {
@@ -30,7 +28,7 @@ public class Metadata {
             encryptMetadata.set(value);
             return;
         }
-        preferences.edit().putLong(name, value).apply();
+        preferences.putLong(name, value);
     }
 
     public void set(float value) {
@@ -38,7 +36,7 @@ public class Metadata {
             encryptMetadata.set(value);
             return;
         }
-        preferences.edit().putFloat(name, value).apply();
+        preferences.putFloat(name, value);
     }
 
     public void set(double value) {
@@ -46,7 +44,7 @@ public class Metadata {
             encryptMetadata.set(value);
             return;
         }
-        preferences.edit().putFloat(name, (float) value).apply();
+        preferences.putFloat(name, (float) value);
     }
 
     public void set(boolean value) {
@@ -54,7 +52,8 @@ public class Metadata {
             encryptMetadata.set(value);
             return;
         }
-        preferences.edit().putBoolean(name, value).apply();
+        preferences.putBoolean(name, value);
+
     }
 
     public void set(String value) {
@@ -62,7 +61,7 @@ public class Metadata {
             encryptMetadata.set(value);
             return;
         }
-        preferences.edit().putString(name, value).apply();
+        preferences.putString(name, value);
     }
 
     public String getString(String def) {

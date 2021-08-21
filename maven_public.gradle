@@ -1,6 +1,6 @@
 group = GROUP_ID
 version = VERSION_NAME
-return
+//return
 apply plugin: 'maven'
 apply plugin: 'signing'
 signing {
