@@ -1,34 +1,32 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
-
 buildscript {
-    ext.kotlin_version = '1.2.30'
-
     repositories {
-        jcenter()
-        mavenCentral()
+        maven { url uri('./repo') }
         google()
-        maven { url "https://jitpack.io" }
-        maven { url "https://maven.google.com" }
+        mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.0'
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.novoda:bintray-release:0.3.4'
-
+        classpath 'com.android.tools.build:gradle:3.5.4'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.0"
+        classpath 'io.github.taoweiji.kvstorage:kvstorage-gradle-plugin:+'
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
     }
 }
-
 allprojects {
     repositories {
-        jcenter()
+        maven { url uri('./repo') }
         mavenCentral()
-        maven { url "https://jitpack.io" }
-        maven { url "https://maven.google.com" }
+        google()
     }
 }
 
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+allprojects {
+    tasks.withType(Javadoc) {
+        options.addStringOption('Xdoclint:none', '-quiet')
+        options.addStringOption('encoding', 'UTF-8')
+    }
 }

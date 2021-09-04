@@ -1,416 +1,346 @@
-[![Release](https://jitpack.io/v/joyrun/AptPreferences.svg)](https://jitpack.io/#joyrun/AptPreferences)
+# 强大的 Android 结构化KV存储框架，基于 yaml 生成 java 结构化存储类
 
-AptPreferences是基于面向对象设计的快速持久化框架，目的是为了简化SharePreferences的使用，减少代码的编写。可以非常快速地保存基本类型和对象。AptPreferences是基于APT技术实现，在编译期间实现代码的生成，支持混淆。根据不同的用户区分持久化信息。
+ [![Maven Central](https://img.shields.io/maven-central/v/io.github.taoweiji.kvstorage/kvstorage)](https://search.maven.org/search?q=io.github.taoweiji.kvstorage)
 
-### 特点
-1. 把通过的Javabean变成SharedPreferences操作类
-2. 支持保存基本类型及对象
-3. 支持根据不同的用户区分持久化信息。
 
-### 简单例子
-##### 定义javabean类
-```
-@AptPreferences
-public class Settings {
-   private long loginTime;
-   private LoginUser loginUser;
-    // get、set方法
-}
-```
-##### 使用方式
-```
-//初始化
-AptPreferencesManager.init(this, null);
-// 保存信息
-SettingsPreference.get().setLoginTime(System.currentTimeMillis());
-SettingsPreference.get().set(new LoginUser("Wiki"));
-// 获取信息
-long loginTime = SettingsPreference.get().getLoginTime();
-LoginUser loginUser = SettingsPreference.get().getLoginUser();
-```
-从上面的简单例子可以看到，我们需要做SharePreferences持久化，仅仅定义一个简单的javabean类（Settings）并添加注解即可，这个框架会根据javabean生成带有持久化功能的SettingsPreference类，通过这个类就可以非常简单去保持或者获取数据，大大简化了SharePreferences的使用，也可以保持对象。
-### 项目地址
-https://github.com/joyrun/AptPreferences
-### 一、配置项目
+使用 yaml 配置文件声明键值对的字段名、类型、默认值、是否加密、分组等，通过 Gradle 插件自动生成对象类，让键值对存储的使用变成get/set形式，让代码调用更加安全、优雅。
 
-##### 配置项目根目录 build.gradle
+- 支持对字段单独加密，避免敏感信息明文存储；
+- 通过 yaml 配置存储字段信息，配置简单易懂，一目了然；
+- 支持基本类型、对象和列表数据，代替SharePreference及部分SQLite场景；
+- 支持自定义文件名，实现多用户之间的数据隔离；
+- 支持自定义存储数据源，开发者可以自行实现把部分数据同步到云端；
+- 支持自定义存储数据源，提供 [MMKV拓展](#使用-mmkv-作为存储底层) 支持。
+- 提供只读参数类生成插件，开发者可以自行实现在线KV参数服务。
+
+
+#### 相对传统KV，结构化KV带来的改进
+- 解决传统KV需要定义大量常量字符串KEY_NAME带来的凌乱问题；
+- 解决传统KV多个地方使用可能会导致默认值、类型不一致导致的异常问题；
+- 解决传统KV部分数据需要对不同用户隔离的实现过于繁琐问题；
+- 解决传统KV部分数据需要加密存储的实现过于繁琐问题；
+- 解决传统KV存储list/set类型数据时，增删改列表数据需要编写复杂代码问题；
+
+#### 推荐规范
+
+- 推荐只使用一个yaml配置文件，放在公共 module 内，方便组件化开发调用；
+- 推荐不同的业务划分不同的分组，避免所有的配置都写在一个组内；
+- 编写yaml时，所有的字段都应该编写注释，说明其用法；
+- bool类型数据不用增加is_前缀，bool类型会默认生成 setXX / isXX 方法；
+
+### 编写 yaml 配置文件
+
+在公共 module（或 app）目录下创建 yaml 配置文件，比如 storage.yaml 会生成 Storage.java，不同文件名存储数据是隔离的，一旦定好后不建议修改。一个项目无论有多少个 module，都推荐使用一个 yaml 配置文件，放在公共的module里面。
+
+```yaml
+#storage.yaml
+account:
+  login_account(object,encrypt): #用户登录信息
+  login_type(string): null #登录方式：qq、weixin、weibo、phone
+browsing_history(list<object>): #浏览记录
+teenager_mode(bool): false #是否开启青少年模式
+current_user_tags(list<string>): #当前用户标签
+global:
+  open_app_num_of_times(int): 0 #打开APP的次数
+  last_open_app_time(long): 0 #上次打开app时间，13位
+tags(set<string>): #标签
 ```
+
+- 配置文件仅允许使用小写字母、数字、下划线，字段必须使用字母开头。
+- 带有括号 `()`是字段，否则就是分组。如上，account 是分组，而login_account、login_time是字段。
+- 字段必须在括号`()`内填写类型，仅支持`int`、`long`、`float`、`bool`、`string`、`object`、`list<int>`、`list<long>`、`list<float>`、`list<bool>`、`list<string>`、`list<object>`、`set<int>`、`set<long>`、`set<float>`、`set<bool>`、`set<string>`、`set<object>`。
+- 如果字段需要加密，就需要在括号内填写 `encrypt`，如(object,encrypt)、(int,encrypt)。
+
+### 配置 Gradle
+
+修改项目根目录的 build.gradle
+
+```groovy
 buildscript {
     repositories {
-        jcenter()
+        mavenCentral()
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:3.1.0"
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
-    }
-}
-
-allprojects {
-    repositories {
-        jcenter()
-        maven { url "https://jitpack.io" }
+        classpath 'io.github.taoweiji.kvstorage:kvstorage-gradle-plugin:+'
     }
 }
 ```
-##### 配置app build.gradle
-```
-apply plugin: 'com.android.application'
 
+修改公共 module（或 app）的  build.gradle
 
-//...
+```groovy
+apply plugin: 'kvstorage'
 dependencies {
-    implementation 'com.github.joyrun.AptPreferences:aptpreferences:0.9.5'
-    annotationProcessor 'com.github.joyrun.AptPreferences:aptpreferences-compiler:0.9.5'
+    implementation 'io.github.taoweiji.kvstorage:kvstorage:+'
+}
+kvstorage {
+    yamlFiles = ["storage.yaml"] // 配置文件，多个配置文件用","分割
+    packageName = "com.taoweiji.kvstorage.example" // 生成代码的包名
+    outputDir = "src/main/java" // 代码生成的目录
 }
 ```
 
-### 二、定义持久化Javabean
+点击 Gradle sync 即可生成对应的类。
 
-使用方法非常简单，先编写一个普通带getter、setter的javabean类，在类头部添加@AptPreferences即可：
+### 使用
 
-```
+```kotlin
+// 在Application进行初始化
+KVStorage.init(this)
 
-@AptPreferences
-public class Settings {
-   private long lastOpenAppTimeMillis;
-   // 使用commit提交，默认是使用apply提交，配置默认值
-   @AptField(commit = true)
-   private String useLanguage = "zh";
-   // 使用preferences的方式保存
-   @AptField(preferences = true)
-   private Push push;
-   // 使用对象的方式保存
-   private LoginUser loginUser;
-   // 不持久化该字段，仅仅保留在内存
-   @AptField(save = false)
-   private long lastActionTimeMillis;
+// 对象操作
+Storage.get().account.loginAccount.setObject(Account(1, "Wiki"))
+val account = Storage.get().account.loginAccount.convert(Account::class.java)
+Storage.get().account.loginAccount.set("gender", 1)
+val name = Storage.get().account.loginAccount.getString("name", "")
+Log.e(TAG, "登录用户信息：" + Storage.get().account.loginAccount.data)
 
-    // ...
+Log.e(TAG, "最后打开APP时间：" + Date(Storage.get().global.lastOpenAppTime))
+Storage.get().global.lastOpenAppTime = System.currentTimeMillis()
 
-    // get、set方法必须写
+Storage.get().global.openAppNumOfTimes++
+Log.e(TAG, "打开APP次数：${Storage.get().global.openAppNumOfTimes}")
+
+if (Storage.get().isTeenagerMode) {
+    Log.e(TAG, "是否开启青少年模式：" + Storage.get().isTeenagerMode)
 }
+Storage.get().isTeenagerMode = true
 
+// 列表操作
+Storage.get().currentUserTags.add("可爱")
+Storage.get().currentUserTags.add("好看")
+Log.e(TAG, "当用户标签：" + JSON.toJSONString(Storage.get().currentUserTags.data))
+
+Storage.get().browsingHistory.addObject(
+    BrowsingHistory(
+        "link",
+        "http://github.com/taoweiji"
+    )
+)
+Log.e(
+    TAG,
+    "浏览记录：" + JSON.toJSONString(Storage.get().browsingHistory.convert(BrowsingHistory::class.java))
+)
 ```
 
 
 
-### 三、注解及使用说明
+## 高级用法
 
-我们提供了两个注解@AptPreferences和@AptField(commit = false,save = true,preferences = false)。
+### 自定义文件名，实现多用户存储隔离
 
-###### @AptPreferences
+如果账号支持多用户登录，或者切换账号的时候需要保留上一个账号的信息，可以通过自定义存储的文件名称实现区分。
 
-被注解的javabean必须为字段实现setter和getter方法；
-
-###### @AptField
-
-AptField有三个参数可以配置。
-
-1. commit：可以配置使用commit还是apply持久化，默认是apply，需要在一些需要立刻保存到文件的可以使用commit方式，比如在退出APP时保存退出的时间。
-
-2. save：用来声明是否需要持久化这个字段。
-
-3. preferences：这个属性仅仅适用于对象类型的字段，用来声明这个是以对象的方式保存，还是以preferences的方式保存。如果是true，就可以通过settingsPreference.getPush().isOpenPush()的方式存取。
-4. global：默认是true，如果设置为false时，和AptPreferencesManager.setUserInfo()配合，可以为不同的用户进行持久化，达到每个用户有不用的设置。
-
-
-### 四、初始化
-
-使用之前要进行初始化，建议在Application进行初始化，需要需要保存对象，还需要实现对象的解析器，这里使用Fastjson作为实例：
-
+```java
+KVStorage.init(this, new KVStorage.Interceptor() {
+    @Override
+    public String customFileName(@NonNull String name) {
+        // 设置 storage.global 全局生效，不对用户隔离
+        if (name.equals("storage.global")) {
+            return name;
+        }
+        // 默认所有配置都进行用户隔离
+        String userId = "1234";
+        return userId + "_" + name;
+    }
+});
 ```
 
-public class MyApplication extends Application{
-   @Override
-   public void onCreate() {
-       super.onCreate();
-       AptPreferencesManager.init(this, new AptParser() {
-           @Override
-           public Object deserialize(Class clazz, String text) {
-               return JSON.parseObject(text,clazz);
-           }
-           @Override
-           public String serialize(Object object) {
-               return JSON.toJSONString(object);
-           }
-       });
-   }
+
+
+### 自定义对象序列化、反序列化
+
+默认使用 FastJson 作为序列化库，开发者可以自定义序列化库，下面是gson的示例。
+```groovy
+dependencies {
+    implementation('io.github.taoweiji.kvstorage:kvstorage:+') {
+        // 移除 fastjson 依赖
+        exclude group: 'com.alibaba', module: 'fastjson'
+    }
+    implementation 'com.google.code.gson:gson:2.8.6'
 }
+```
+修改初始化
+```java
+KVStorage.init(this, new KVStorage.Interceptor() {
+    @Override
+    public String toJSONString(@NonNull Object object) {
+        return new Gson().toJson(object);
+    }
 
+    @Override
+    public <T> List<T> parseArray(@NonNull String text, Class<T> clazz) {
+        Type userListType = new TypeToken<ArrayList<T>>() {}.getType();
+        return new Gson().fromJson(text, userListType);
+    }
+
+    @Override
+    public <T> T parseObject(@NonNull String text, Class<T> clazz) {
+        return new Gson().fromJson(text, clazz);
+    }
+});
 ```
 
 
 
+### 自定义加密/解密算法
 
-
-### 五、根据不同的用户设置
-如果app支持多用户登录，需要根据不用的用户持久化，可以通过下面方法配置。再通过@AptField(global = false)，就可以针对某个字段跟随用户不同进行持久化。
-```
-AptPreferencesManager.setUserInfo("uid");
+```yaml
+login_account(object,encrypt): #登录信息，加密
 ```
 
-### 六、代码调用
+通过 `encrypt` 可以对字段进行单独的加密，避免敏感信息明文存储在文件当中，比如密码、手机号码等。框架默认使用 base64作为简单处理，避免明文存储。但是base64并不是一个加密算法，如果需要对字段加密需要自己实现相关接口，推荐官方的 [KeyStore](https://developer.android.google.cn/training/articles/keystore.html)。
 
+```java
+KVStorage.init(this, new KVStorage.Interceptor() {
+    @Override
+    public String decryption(@NonNull String data) {
+      	// TODO 解密
+        // return new String(Base64.decode(data, Base64.DEFAULT));
+    }
+
+    @Override
+    public String encryption(@NonNull String data) {
+      	// TODO 加密
+        // return Base64.encodeToString(data.getBytes(), Base64.DEFAULT);
+    }
+});
+```
+### 自定义存储数据源：云同步键值对存储服务
+开发者可以自定义存储数据源，比如用来实现本地键值对数据同步到云端，跟随着用户登录的账号，不会随着卸载而丢失，但是与服务端联动的代码需要开发者自行实现。
+#### 定义需要同步的分组
+```yaml
+#storage.yaml
+cloud:
+  open_comment_push(bool): true #是否开启评论推送
+  login_divices(list<object>): #登录的设备信息
+```
+#### 自定义存储数据源
+```java
+KVStorage.init(this, new KVStorage.Interceptor() {
+    @Override
+    public PreferencesAdapter createPreferencesProvider(String fileName) {
+        if(fileName.equals("storage.cloud")){
+            // TODO 针对 storage.cloud 分组自行实现云同步
+        }
+        return super.createPreferencesProvider(fileName);
+    }
+});
 ```
 
-// 普通类型保存
-SettingsPreferences.get().setUseLanguage("zh");
-SettingsPreferences.get().setLastOpenAppTimeMillis(System.currentTimeMillis());
-// 对象类型保存
-Settings.LoginUser loginUser = new Settings.LoginUser();
-loginUser.setUsername("username");
-loginUser.setPassword("password");
-SettingsPreferences.get().setLoginUser(loginUser);
-// 对象类型带 @AptField(preferences = true) 注解的保存，相当于把 push相关的放在一个分类
-SettingsPreferences.get().getPush().setOpenPush(true);
 
+### 自定义存储数据源：使用MMKV作为存储数据源
 
-// 获取
-String useLanguage = settingsPreference.getUseLanguage();
-Settings.LoginUser loginUser1 = settingsPreference.getLoginUser();
-boolean openPush = settingsPreference.getPush().isOpenPush();
+默认是使用 SharedPreferences 作为存储底层，开发者可以自定义存储底层，比如使用 [MMKV](https://github.com/Tencent/MMKV) 作为底层存储，从而获取更高的性能。
+
+#### 引入 mmkv 拓展
+
+```groovy
+implementation 'io.github.taoweiji.kvstorage:kvstorage-mmkv:+'
 ```
 
-### 七、默认值
+#### 初始化
 
-很多时候我们需要在没有获取到值时使用默认值，SharedPreferences本身也是具备默认值的，所以我们也是支持默认值配置。分析生成的代码可以看到：
+```java
+MMKV.initialize(this);
 
+KVStorage.init(this, new KVStorage.Interceptor() {
+    @Override
+    public PreferencesAdapter createPreferencesProvider(String fileName) {
+      	// 返回 mmkv 适配器
+        return new MMKVPreferencesProvider(fileName);
+    }
+});
 ```
 
-@Override
-public long getLastOpenAppTimeMillis() {
-   return mPreferences.getLong("lastOpenAppTimeMillis", super.getLastOpenAppTimeMillis());
+这样存储数据源就会改成mmkv，其它用法没有任何差异。
+
+
+### 只读KV类生成插件：实现在线参数服务
+通常的项目都会有在线参数服务，用于下发参数到客户端，控制客户端的显示逻辑，部分在线参数服务还具备ab测试能力，不同的用户下发不同的参数，比如只让部分用户体验新功能。客户端使用参数服务和键值对存储使用方式类似，不同的是参数服务只允许读取数据。对于一个成熟的APP，必然会大规模使用在线参数服务，就会存在大量的字段名，和键值对一样，如果没有合理使用，也会让代码变得凌乱。KVStorage也提供了解决方案，可以根据yaml配置文件生成相关的工具类，但是后端服务和客户端服务提供还是需要开发者自行实现。
+
+#### 创建cloud_config.yaml
+
+在公共的Module目录下创建cloud_config.yaml，填写对应的自定义，编写规则和 storage 是一样的，也支持分组，config仅支持 int、long、float、bool、string类型。
+
+```yaml
+# cloud_config.yaml
+ad:
+  launch_app_ads(string): #启动APP广告
+  launch_app_alert_ads(bool): #启动APP是否显示弹出广告
+  alert_ads_show_duration(long): 3000 #弹窗广告显示时长，单位：秒
+
+launch_welcome_message(string): 欢迎使用KVStorage #启动欢迎语
+splash_screen_duration(long): 1000 #闪屏时长
+home_default_tab_index(int): 0 #首页默认显示第几个tab
+```
+
+##### 修改build.gradle
+
+```groovy
+apply plugin: 'kvstorage'
+dependencies {
+    implementation 'io.github.taoweiji.kvstorage:kvstorage:+'
 }
-
-```
-
-如果没有获取到值，会调用父类的方法，那么就可以通过这个方式配置默认值：
-
-```
-
-@AptPreferences
-public class Settings {
-   // 使用commit提交，默认是使用apply提交，配置默认值
-   @AptField(commit = true)
-   private String useLanguage = "zh";
-
-   // ...
-
-}
-
-```
-
-
-
-### 八、详细转换代码
-
-```
-
-@AptPreferences
-public class Settings {
-   private long lastOpenAppTimeMillis;
-   // 使用commit提交，默认是使用apply提交，配置默认值
-   @AptField(commit = true)
-   private String useLanguage = "zh";
-   // 使用preferences的方式保存
-   @AptField(preferences = true)
-   private Push push;
-   // 使用对象的方式保存
-   private LoginUser loginUser;
-   // 不持久化该字段，仅仅保留在内存
-   @AptField(save = false)
-   private long lastActionTimeMillis;
-   public long getLastActionTimeMillis() {
-       return lastActionTimeMillis;
-   }
-   public void setLastActionTimeMillis(long lastActionTimeMillis) {
-       this.lastActionTimeMillis = lastActionTimeMillis;
-   }
-   public LoginUser getLoginUser() {
-       return loginUser;
-   }
-   public void setLoginUser(LoginUser loginUser) {
-       this.loginUser = loginUser;
-   }
-   public long getLastOpenAppTimeMillis() {
-       return lastOpenAppTimeMillis;
-   }
-   public void setLastOpenAppTimeMillis(long lastOpenAppTimeMillis) {
-       this.lastOpenAppTimeMillis = lastOpenAppTimeMillis;
-   }
-   public String getUseLanguage() {
-       return useLanguage;
-   }
-   public void setUseLanguage(String useLanguage) {
-       this.useLanguage = useLanguage;
-   }
-   public Push getPush() {
-       return push;
-   }
-   public void setPush(Push push) {
-       this.push = push;
-   }
-   public static class Push {
-       private boolean openPush;
-       private boolean vibrate;
-       private boolean voice;
-       public boolean isOpenPush() {
-           return openPush;
-       }
-       public void setOpenPush(boolean openPush) {
-           this.openPush = openPush;
-       }
-       public boolean isVibrate() {
-           return vibrate;
-       }
-       public void setVibrate(boolean vibrate) {
-           this.vibrate = vibrate;
-       }
-       public boolean isVoice() {
-           return voice;
-       }
-       public void setVoice(boolean voice) {
-           this.voice = voice;
-       }
-   }
-   public static class LoginUser implements Serializable{
-       public String username;
-       public String password;
-       public String getUsername() {
-           return username;
-       }
-       public void setUsername(String username) {
-           this.username = username;
-       }
-       public String getPassword() {
-           return password;
-       }
-       public void setPassword(String password) {
-           this.password = password;
-       }
-   }
-}
-
-```
-
-实际上就是根据上面的代码自动生成带有持久化的代码，可以在这里可以找到
-
-> app/build/generated/source/apt/debug
-
-```
-
-public final class SettingsPreferences extends Settings {
-   public static final Map<String, SettingsPreferences> sMap = new java.util.HashMap<>();
-   private final SharedPreferences.Editor mEdit;
-   private final SharedPreferences mPreferences;
-   private final String mName;
-   public SettingsPreferences(String name) {
-       mPreferences = AptPreferencesManager.getContext().getSharedPreferences("Settings_" + name, 0);
-       mEdit = mPreferences.edit();
-       this.mName = name;
-       this.setPush(new PushPreferences());
-   }
-   @Override
-   public Settings.LoginUser getLoginUser() {
-       String text = mPreferences.getString("loginUser", null);
-       Object object = null;
-       if (text != null) {
-           object = AptPreferencesManager.getAptParser().deserialize(com.thejoyrun.aptpreferences.Settings.LoginUser.class, text);
-       }
-       if (object != null) {
-           return (com.thejoyrun.aptpreferences.Settings.LoginUser) object;
-       }
-       return super.getLoginUser();
-   }
-   @Override
-   public void setLoginUser(Settings.LoginUser loginUser) {
-       mEdit.putString("loginUser", AptPreferencesManager.getAptParser().serialize(loginUser)).apply();
-   }
-   @Override
-   public long getLastOpenAppTimeMillis() {
-       return mPreferences.getLong("lastOpenAppTimeMillis", super.getLastOpenAppTimeMillis());
-   }
-   @Override
-   public void setLastOpenAppTimeMillis(long lastOpenAppTimeMillis) {
-       mEdit.putLong("lastOpenAppTimeMillis", lastOpenAppTimeMillis).apply();
-   }
-   @Override
-   public String getUseLanguage() {
-       return mPreferences.getString("useLanguage", super.getUseLanguage());
-   }
-   @Override
-   public void setUseLanguage(String useLanguage) {
-       mEdit.putString("useLanguage", useLanguage).commit();
-   }
-   public static SettingsPreferences get(String name) {
-       if (sMap.containsKey(name)) {
-           return sMap.get(name);
-       }
-       synchronized (sMap) {
-           if (!sMap.containsKey(name)) {
-               SettingsPreferences preferences = new SettingsPreferences(name);
-               sMap.put(name, preferences);
-           }
-       }
-       return sMap.get(name);
-   }
-   public static SettingsPreferences get() {
-       return get("");
-   }
-   public void clear() {
-       mEdit.clear().commit();
-       sMap.remove(mName);
-   }
-   public static void clearAll() {
-       java.util.Set<String> keys = sMap.keySet();
-       for (String key : keys) {
-           sMap.get(key).clear();
-       }
-   }
-   private class PushPreferences extends Settings.Push {
-       @Override
-       public boolean isOpenPush() {
-           return mPreferences.getBoolean("Push.openPush", super.isOpenPush());
-       }
-       @Override
-       public void setOpenPush(boolean openPush) {
-           mEdit.putBoolean("Push.openPush", openPush).apply();
-       }
-       @Override
-       public boolean isVibrate() {
-           return mPreferences.getBoolean("Push.vibrate", super.isVibrate());
-       }
-       @Override
-       public void setVibrate(boolean vibrate) {
-           mEdit.putBoolean("Push.vibrate", vibrate).apply();
-       }
-       @Override
-       public boolean isVoice() {
-           return mPreferences.getBoolean("Push.voice", super.isVoice());
-       }
-       @Override
-       public void setVoice(boolean voice) {
-           mEdit.putBoolean("Push.voice", voice).apply();
-       }
-   }
+kvstorage {
+    packageName = "com.taoweiji.kvstorage.example" // 生成代码的包名
+    outputDir = "src/main/java" // 代码生成的目录
+  	configYamlFiles = ["cloud_config.yaml"]
 }
 ```
 
+#### 实现数据提供
+
+配置服务端的数据提供需要开发者自行实现。
+
+```java
+KVStorage.setReadOnlyConfigProvider(new KVStorage.ReadOnlyConfigProvider() {
+    @Override
+    public int getInt(String groupName, String key, int def) {
+      	// TODO 
+    }
+    @Override
+    public float getFloat(String groupName, String key, float def) {
+      	// TODO 
+    }
+    @Override
+    public long getLong(String groupName, String key, long def) {
+      	// TODO 
+    }
+    @Override
+    public boolean getBool(String groupName, String key, boolean def) {
+      	// TODO 
+    }
+    @Override
+    public String getString(String groupName, String key, String def) {
+      	// TODO 
+    }
+});
+```
+
+#### 使用
+
+```kotlin
+if (CloudConfig.get().ad.isLaunchAppAlertAds) {
+	println("显示弹出广告：" + CloudConfig.get().ad.launchAppAds)
+}
+```
 
 
 
 ## License
 
-    Copyright 2016 Joyrun, Inc.
-
+    Copyright 2021 taoweiji.
+    
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
-
+    
        http://www.apache.org/licenses/LICENSE-2.0
-
+    
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+

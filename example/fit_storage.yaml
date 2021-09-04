@@ -1,0 +1,41 @@
+# 会根据文件名称生成相应的文件
+login_account(object,encrypt): "" #登录的用户信息
+last_login_time(long): 0 #最后登录时间
+#login_user_avatar(file): null #登录用户的头像
+login_user_tags(set<string>): [] #登录用户标签
+login_moment_drafts(list<object>): [] #草稿箱
+body_info:
+  height(int): 0
+  weight(int): 0
+  age(int): 18
+  gender(int): 0
+
+
+
+account:
+  login_account(object,encrypt): #用户登录信息
+  login_time(long): 0 #最后登录时间
+  login_type(string): null #登录方式：qq、weixin、weibo、phone
+
+
+fit:
+  collect(list<object>):
+  body:
+    weight(int): 0
+    height(int): 0
+cloud:
+  login_devices(list,lazy): [] #登录的设备
+  enable_local_city(bool): true #同城展示
+  active_visible(bool): true #活跃状态
+  enable_browsing_history(bool): true #浏览记录
+
+
+int_type(int,encrypt): 10
+long_type(long): 100
+float_type(float): 1.0
+double_type(double,encrypt): 2.0
+bool_type(bool): true
+string1(string): Hello World
+string2(string): null
+string3(string): ""
+

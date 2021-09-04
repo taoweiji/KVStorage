@@ -1,0 +1,9 @@
+# cloud_config.yaml
+ad:
+  launch_app_ads(string): #启动APP广告
+  launch_app_alert_ads(bool): #启动APP是否显示弹出广告
+  alert_ads_show_duration(long): 3000 #弹窗广告显示时长，单位：秒
+
+launch_welcome_message(string): 欢迎使用KVStorage #启动欢迎语
+splash_screen_duration(long): 1000 #闪屏时长
+home_default_tab_index(int): 0 #首页默认显示第几个tab

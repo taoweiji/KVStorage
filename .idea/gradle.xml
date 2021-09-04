@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="GradleMigrationSettings" migrationVersion="1" />
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
+        <option name="testRunner" value="GRADLE" />
         <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="gradleJvm" value="11" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/app-kotlin" />
-            <option value="$PROJECT_DIR$/aptpreferences" />
-            <option value="$PROJECT_DIR$/aptpreferences-annotation" />
-            <option value="$PROJECT_DIR$/aptpreferences-compiler" />
+            <option value="$PROJECT_DIR$/example" />
+            <option value="$PROJECT_DIR$/kvstorage" />
+            <option value="$PROJECT_DIR$/kvstorage-gradle-plugin" />
+            <option value="$PROJECT_DIR$/kvstorage-mmkv" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

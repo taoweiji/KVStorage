@@ -1,1 +1,13 @@
-include ':app', ':aptpreferences-compiler', ':aptpreferences', ':aptpreferences-annotation', ':app-kotlin'
+//dependencyResolutionManagement {
+//    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+//    repositories {
+//        google()
+//        mavenCentral()
+//        jcenter() // Warning: this repository is going to shut down soon
+//    }
+//}
+rootProject.name = "KVStorage"
+include ':example'
+include ':kvstorage-gradle-plugin'
+include ':kvstorage'
+include ':kvstorage-mmkv'

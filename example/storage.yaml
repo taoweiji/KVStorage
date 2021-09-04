@@ -1,0 +1,11 @@
+account:
+    login_account(object,encrypt): #用户登录信息
+    login_type(string): null #登录方式：qq、weixin、weibo、phone
+browsing_history(list<object>): #浏览记录
+teenager_mode(bool): false #是否开启青少年模式
+current_user_tags(list<string>): #当前用户标签
+global:
+    open_app_num_of_times(int): 0 #打开APP的次数
+    last_open_app_time(long): 0 #上次打开app时间，13位
+tags(set<string>): #用户标签
+shipping_address(list<object>): #收货地址
